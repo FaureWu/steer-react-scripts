@@ -1,0 +1,11 @@
+import { lazy } from 'react'
+
+export default lazy(() => {
+  <% if (models.length) { -%>
+    <% models.forEach(function(model) { -%>
+      window._APP_.model__quiet(require('<%= model %>').default)
+    <% }) -%>
+  <% } -%>
+
+  return import(/* webpackChunkName: "page~<%= pageName %>" */'<%= sourcePath %>')
+})

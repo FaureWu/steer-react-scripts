@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
 
-function Layout({ children }) {
+function Main({ children }) {
   return useMemo(() => {
     return (
       <div>
-        <p>Index Layout</p>
+        <p>Main Layout</p>
         {children}
       </div>
     )
   }, [children])
 }
 
-export default Layout
+export default Main

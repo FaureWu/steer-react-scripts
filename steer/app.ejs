@@ -1,23 +1,23 @@
-import React, { useMemo, Suspense } from 'react'
-import { HashRouter as Router } from 'react-router-dom'
+import React, { Suspense } from 'react'
 import { Provider } from 'react-redux'
+import { HashRouter as Router } from 'react-router-dom'
 import zoro from '@opcjs/zoro'
 import { createLoading } from '@opcjs/zoro-plugin'
-import Routes from '@/routes'
 import { zoro as config } from '@/app'
 import Loading from '@/components/loading/loading'
-import Layout from '@/layouts'
+import Layout from './layout'
+import Routes from './routes'
 
 const app = zoro(config)
 <% if (models.length) { -%>
   <% models.forEach(function(model) { -%>
-    app.model(require('<%= model %>').default),
+    app.model(require('<%= model %>').default)
   <% }) -%>
 <% } -%>
 app.use(createLoading())
 <% if (plugins.length) { -%>
   <% plugins.forEach(function(plugin) { -%>
-    app.use(require('<%= plugin %>').default),
+    app.use(require('<%= plugin %>').default)
   <% }) -%>
 <% } -%>
 const store = app.start()
@@ -26,9 +26,9 @@ window._APP_ = app
 window._STORE_ = store
 
 export default function App() {
-  return useMemo(() => {
-    return (
-      <Provider store={store}>
+  return (
+    <Provider store={store}>
+      <Suspense fallback={<Loading />}>
         <Layout>
           <Router>
             <Suspense fallback={<Loading />}>
@@ -36,7 +36,7 @@ export default function App() {
             </Suspense>
           </Router>
         </Layout>
-      </Provider>
-    )
-  }, [])
+      </Suspense>
+    </Provider>
+  )
 }

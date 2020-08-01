@@ -1,4 +1,4 @@
-import { createMixin } from '@opcjs/zoro'
+import { createMixin } from '@opcjs/zoro-plugin'
 
 const update = {
   namespace: 'update',
@@ -10,6 +10,4 @@ const update = {
   },
 }
 
-export default [
-  createMixin(update),
-]
+export default [createMixin(update)]

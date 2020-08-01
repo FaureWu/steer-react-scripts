@@ -1,29 +1,26 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react'
 import {
   Switch,
   Route,
   useLocation,
   useHistory,
   useParams
-} from 'react-router-dom';
-import { onRouteChange } from '@/app';
+} from 'react-router-dom'
+import { onRouteChange } from '@/app'
 
 <% pages.forEach(function(page) { -%>
-import <%= page.componentName %> from '<%= page.targetPath %>';
+import <%= page.componentName %> from '<%= page.targetPath %>'
 <% }) -%>
-import NotFound from '@/pages/404';
-import Error from '@/pages/500';
+import NotFound from '@/pages/404'
 
 export default function Routes() {
-  const location = useLocation();
-  const history = useHistory();
-  const params = useParams();
+  const location = useLocation()
+  const history = useHistory()
+  const params = useParams()
 
   useEffect(() => {
-    if (typeof onRouteChange !== 'function') return;
-
-    onRouteChange({ history, location, params });
-  }, [location]);
+    onRouteChange({ history, location, params })
+  }, [location])
 
   return useMemo(() => {
     return (
@@ -31,9 +28,8 @@ export default function Routes() {
         <% pages.forEach(function(page) { -%>
         <Route exact path="<%= page.route %>" component={<%= page.componentName %>} />
         <% }) -%>
-        <Route path="/500" component={Error} />
         <Route path="*" component={NotFound} />
       </Switch>
-    );
-  }, []);
-};
+    )
+  }, [])
+}

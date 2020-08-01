@@ -9,12 +9,14 @@ const ora = require('ora');
 const chokidar = require('chokidar');
 
 const excludePageDirs = ['components', 'models'];
+const ignorePages = ['404'];
 
 const steerTemplatePath = path.resolve(__dirname, '../steer');
-const steerTargetPath = path.resolve(process.cwd(), 'src/.steer');
+let steerTargetPath = path.resolve(process.cwd(), 'src/.steer');
 if (process.env.NODE_ENV === 'production') {
   steerTargetPath = path.resolve(process.cwd(), 'src/.steer-pro');
 }
+const steerSourceLayoutsPath = path.resolve(process.cwd(), 'src/layouts');
 const steerSourcePagesPath = path.resolve(process.cwd(), 'src/pages');
 const steerSourceModelsPath = path.resolve(process.cwd(), 'src/models');
 const steerSourcePluginsPath = path.resolve(process.cwd(), 'src/plugins');
@@ -32,6 +34,10 @@ function toFirstUpperCase(name) {
 
 function createPageComponentName(name) {
   return `P${toFirstUpperCase(name)}`
+}
+
+function createLayoutComponentName(name) {
+  return `L${toFirstUpperCase(name)}`
 }
 
 function getFilePath(file) {
@@ -88,8 +94,16 @@ function renderTemplate({
   fs.writeFileSync(path.resolve(steerTargetPath, filePath), formatCode(code));
 }
 
+function renderLayoutsTemplate(layouts) {
+  const layoutTemplate = fs.readFileSync(path.resolve(steerTemplatePath, 'layoutComponent.ejs')).toString();
+  layouts.forEach(layout => {
+    const layoutCode = ejs.render(layoutTemplate, layout);
+    fs.writeFileSync(layout.targetPath, formatCode(layoutCode));
+  });
+}
+
 function renderPagesTemplate(pages) {
-  const pageTemplate = fs.readFileSync(path.resolve(steerTemplatePath, 'page.ejs')).toString();
+  const pageTemplate = fs.readFileSync(path.resolve(steerTemplatePath, 'pageComponent.ejs')).toString();
   pages.forEach(page => {
     const models = runtimeCaches.pageModels[page.modelsPath] || [];
     const pageCode = ejs.render(pageTemplate, { ...page, models });
@@ -118,6 +132,36 @@ function readDirFiles(dirPath) {
       files.push(filePath);
       return files;
     }, [])
+}
+
+/**
+ * 获取目录下的所有布局文件(仅获取目录第一层文件)
+ * @param {String} layoutDir
+ * @return {Array}
+ */
+function readLayouts(layoutDir) {
+  if (!fs.existsSync(layoutDir)) return [];
+
+  return fs.readdirSync(layoutDir)
+    .reduce((layouts, file) => {
+      const filePath = path.resolve(layoutDir, file);
+      const { ext, name, dir } = path.parse(filePath);
+
+      if (fs.statSync(filePath).isDirectory()) {
+        return layouts;
+      }
+
+      if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return layouts;
+
+      layouts.push({
+        sourcePath: filePath,
+        targetPath: path.resolve(steerTargetPath, `layouts/${name}${ext}`),
+        componentName: createLayoutComponentName(name),
+        layoutName: name,
+      })
+
+      return layouts;
+    }, []);
 }
 
 /**
@@ -162,13 +206,13 @@ function readPages(pageDir) {
         return pages;
       }
 
-      if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return pages;
+      if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(file => file === name)) return pages;
 
       const relationFilePath = filePath.replace(steerSourcePagesPath, '');
       const pageName = getPageNameByPath(relationFilePath);
       pages.push({
         sourcePath: filePath,
-        targetPath: path.resolve(steerTargetPath, `pages/${pageName}.jsx`),
+        targetPath: path.resolve(steerTargetPath, `pages/${pageName}${ext}`),
         modelsPath: path.resolve(dir, 'models'),
         componentName: createPageComponentName(pageName),
         pageName,
@@ -229,7 +273,7 @@ function pageModelFileChange(file) {
  * 页面文件改变
  */
 function pageFileChange(file) {
-  const { dir, name } = path.parse(file);
+  const { dir, name, ext } = path.parse(file);
   const relationFilePath = path.resolve(dir, name).replace(steerSourcePagesPath, '');
   const pageName = getPageNameByPath(relationFilePath);
 
@@ -244,26 +288,55 @@ function pageFileChange(file) {
 
   // 页面改变
   let page = runtimeCaches.pages.find(p => p.pageName === pageName);
-  if (!page) {
-    page = {
-      sourcePath: file,
-      targetPath: path.resolve(steerTargetPath, `pages/${pageName}.jsx`),
-      modelsPath: path.resolve(dir, 'models'),
-      componentName: createPageComponentName(pageName),
-      pageName,
-      route: getPageRouteByPath(relationFilePath),
-    }
-    runtimeCaches.pages.push(page)
-  }
+  if (page) return;
+
+  page = {
+    sourcePath: file,
+    targetPath: path.resolve(steerTargetPath, `pages/${pageName}${ext}`),
+    modelsPath: path.resolve(dir, 'models'),
+    componentName: createPageComponentName(pageName),
+    pageName,
+    route: getPageRouteByPath(relationFilePath),
+  };
+  runtimeCaches.pages.push(page);
   renderTemplate({
-    template: 'page.ejs',
+    template: 'pageComponent.ejs',
     templateData: { ...page, models: runtimeCaches.pageModels[page.modelsPath] || [] },
-    filePath: `pages/${page.pageName}.jsx`,
+    filePath: `pages/${page.pageName}${ext}`,
   });
   renderTemplate({
     template: 'routes.ejs',
     templateData: { pages: runtimeCaches.pages },
     filePath: 'routes.jsx',
+  });
+}
+
+/**
+ * 全局layout改变
+ */
+function layoutFileChange(file) {
+  const { dir, name, ext } = path.parse(file);
+
+  if (dir !== steerSourceLayoutsPath) return;
+
+  let layout = runtimeCaches.layouts.find(l => l.layoutName === name);
+  if (layout) return;
+  layout = {
+    sourcePath: file,
+    targetPath: path.resolve(steerTargetPath, `layouts/${name}${ext}`),
+    componentName: createLayoutComponentName(name),
+    layoutName: name,
+  };
+  runtimeCaches.layouts.push(layout);
+  renderTemplate({
+    template: 'layoutComponent.ejs',
+    templateData: layout,
+    filePath: `layouts/${layout.layoutName}${ext}`
+  });
+  renderTemplate({
+    template: 'layout.ejs',
+    templateData: { layouts: runtimeCaches.layouts },
+    filePath: 'layout.jsx',
   });
 }
 
@@ -306,6 +379,8 @@ function fileChange(file) {
   if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return;
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileChange(file);
+
+  if (file.indexOf(steerSourceLayoutsPath) !== -1) layoutFileChange(file);
 
   if (file.indexOf(steerSourceModelsPath) !== -1) modelFileChange(file);
 
@@ -367,6 +442,30 @@ function pageFileRemove(file) {
 }
 
 /**
+ * 全局layout删除
+ */
+function layoutFileRemove(file) {
+  const { dir, name, ext } = path.parse(file);
+
+  if (dir !== steerSourceLayoutsPath) return;
+
+  let removeLayout;
+  runtimeCaches.layouts = runtimeCaches.layouts.filter(layout => {
+    const match = layout.sourcePath === file;
+    if (match) removeLayout = layout;
+
+    return !match;
+  });
+
+  renderTemplate({
+    template: 'layout.ejs',
+    templateData: { layouts: runtimeCaches.layouts },
+    filePath: 'layout.jsx',
+  });
+  if (removeLayout) shell.rm('-rf', removeLayout.targetPath);
+}
+
+/**
  * 全局model文件删除
  */
 function modelFileRemove(file) {
@@ -399,6 +498,8 @@ function fileRemove(file) {
   if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return;
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileRemove(file);
+
+  if (file.indexOf(steerSourceLayoutsPath) !== -1) layoutFileRemove(file);
 
   if (file.indexOf(steerSourceModelsPath) !== -1) modelFileRemove(file);
 
@@ -435,7 +536,7 @@ function pageFileAdd(file) {
 
   if (!fileContent) return;
 
-  const { dir, name } = path.parse(file);
+  const { dir, name, ext } = path.parse(file);
   const relationFilePath = path.resolve(dir, name).replace(steerSourcePagesPath, '');
   const pageName = getPageNameByPath(relationFilePath);
 
@@ -451,7 +552,7 @@ function pageFileAdd(file) {
   // 页面新增
   const page = {
     sourcePath: file,
-    targetPath: path.resolve(steerTargetPath, `pages/${pageName}.jsx`),
+    targetPath: path.resolve(steerTargetPath, `pages/${pageName}${ext}`),
     modelsPath: path.resolve(dir, 'models'),
     componentName: createPageComponentName(pageName),
     pageName,
@@ -459,7 +560,7 @@ function pageFileAdd(file) {
   }
   runtimeCaches.pages.push(page);
   renderTemplate({
-    template: 'page.ejs',
+    template: 'pageComponent.ejs',
     templateData: { ...page, models: runtimeCaches.pageModels[page.modelsPath] || [] },
     filePath: `pages/${page.pageName}.jsx`,
   });
@@ -467,6 +568,37 @@ function pageFileAdd(file) {
     template: 'routes.ejs',
     templateData: { pages: runtimeCaches.pages },
     filePath: 'routes.jsx',
+  });
+}
+
+/**
+ * 全局layout新增
+ */
+function layoutFileAdd(file) {
+  const fileContent = fs.readFileSync(file).toString();
+
+  if (!fileContent) return;
+
+  const { dir, name, ext } = path.parse(file);
+
+  if (dir !== steerSourceLayoutsPath) return;
+
+  const layout = {
+    sourcePath: file,
+    targetPath: path.resolve(steerTargetPath, `layouts/${name}${ext}`),
+    componentName: createLayoutComponentName(name),
+    layoutName: name,
+  };
+  runtimeCaches.layouts.push(layout);
+  renderTemplate({
+    template: 'layoutComponent.ejs',
+    templateData: layout,
+    filePath: `layouts/${layout.layoutName}${ext}`
+  });
+  renderTemplate({
+    template: 'layout.ejs',
+    templateData: { layouts: runtimeCaches.layouts },
+    filePath: 'layout.jsx',
   });
 }
 
@@ -512,6 +644,8 @@ function fileAdd(file) {
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileAdd(file);
 
+  if (file.indexOf(steerSourceLayoutsPath) !== -1) layoutFileAdd(file);
+
   if (file.indexOf(steerSourceModelsPath) !== -1) modelFileAdd(file);
 
   if (file.indexOf(steerSourcePluginsPath) !== -1) pluginsFileAdd(file);
@@ -524,6 +658,7 @@ function watch() {
   const { pages = [], models = [], plugins = [] } = runtimeCaches;
 
   const watcher = chokidar.watch([
+    steerSourceLayoutsPath,
     steerSourcePagesPath,
     steerSourceModelsPath,
     steerSourcePluginsPath,
@@ -542,19 +677,28 @@ function watch() {
 
 function run() {
   const spinner = ora('Compile the project!').start();
+  
   const pages = readPages(steerSourcePagesPath);
+  const layouts = readLayouts(steerSourceLayoutsPath);
   const models = readDirFiles(steerSourceModelsPath);
   const plugins = readDirFiles(steerSourcePluginsPath);
   
   shell.rm('-rf', steerTargetPath);
   shell.mkdir('-p', steerTargetPath);
   shell.mkdir('-p', path.resolve(steerTargetPath, 'pages'));
+  shell.mkdir('-p', path.resolve(steerTargetPath, 'layouts'));
 
   renderPagesTemplate(pages);
   renderTemplate({
     template: 'routes.ejs',
     templateData: { pages },
     filePath: 'routes.jsx',
+  });
+  renderLayoutsTemplate(layouts);
+  renderTemplate({
+    template: 'layout.ejs',
+    templateData: { layouts },
+    filePath: 'layout.jsx',
   });
   renderTemplate({
     template: 'app.ejs',
@@ -569,6 +713,7 @@ function run() {
 
   spinner.stop();
 
+  runtimeCaches.layouts = layouts;
   runtimeCaches.pages = pages;
   runtimeCaches.models = models;
   runtimeCaches.plugins = plugins;

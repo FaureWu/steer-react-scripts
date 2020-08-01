@@ -1,19 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from '@/app'
 import * as serviceWorker from '@/serviceWorker'
 import { render } from '@/app'
+import App from './app'
 import '@/app.less'
 
-if (typeof render === 'function') {
-  render(() => {
-    ReactDOM.render(<App />, document.getElementById(process.env.REACT_APP_ROOT_ELEMENT_ID || 'root'))
-  })
-} else {
+render(() => {
   ReactDOM.render(<App />, document.getElementById(process.env.REACT_APP_ROOT_ELEMENT_ID || 'root'))
-}
+})
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+serviceWorker.register()

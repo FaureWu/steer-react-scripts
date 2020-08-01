@@ -37,8 +37,10 @@ const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
 const postcssNormalize = require('postcss-normalize');
+const { getThemeVariables } = require('antd/dist/theme')
 
 const appPackageJson = require(paths.appPackageJson);
+const antdTheme = require(paths.themeConfig);
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -78,7 +80,7 @@ module.exports = function(webpackEnv) {
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 
   // common function to get style loaders
-  const getStyleLoaders = (cssOptions, preProcessor) => {
+  const getStyleLoaders = (cssOptions, preProcessor, preProcessorOptions = {}) => {
     const loaders = [
       isEnvDevelopment && require.resolve('style-loader'),
       isEnvProduction && {
@@ -131,6 +133,7 @@ module.exports = function(webpackEnv) {
           loader: require.resolve(preProcessor),
           options: {
             sourceMap: true,
+            ...preProcessorOptions,
           },
         }
       );
@@ -504,7 +507,19 @@ module.exports = function(webpackEnv) {
                     getLocalIdent: getCSSModuleLocalIdent,
                   },
                 },
-                'less-loader'
+                'less-loader',
+                {
+                  lessOptions: {
+                    modifyVars: {
+                      ...getThemeVariables({
+                        dark: process.env.ANTD_THEME_DARK,
+                        compact: process.env.ANTD_THEME_COMPACT,
+                      }),
+                      ...antdTheme,
+                    },
+                    javascriptEnabled: true,
+                  },
+                },
               ),
               // Don't consider CSS imports dead code even if the
               // containing package claims to have no side effects.

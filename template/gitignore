@@ -13,6 +13,7 @@
 
 # building
 /src/.steer
+/src/.steer-pro
 
 # misc
 .DS_Store

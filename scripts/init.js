@@ -22,6 +22,7 @@ const spawn = require('react-dev-utils/crossSpawn');
 const { defaultBrowsers } = require('react-dev-utils/browsersHelper');
 const os = require('os');
 const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
+const shell = require('shelljs');
 
 function isInGitRepository() {
   try {
@@ -119,6 +120,8 @@ module.exports = function(
   if (fs.existsSync(templateJsonPath)) {
     templateJson = require(templateJsonPath);
   }
+
+  shell.rm('-rf', templateJsonPath);
 
   const templatePackage = templateJson.package || {};
 
@@ -360,31 +363,35 @@ module.exports = function(
   console.log(`Success! Created ${appName} at ${appPath}`);
   console.log('Inside that directory, you can run several commands:');
   console.log();
-  console.log(chalk.cyan(`  ${displayedCommand} start`));
-  console.log('    Starts the development server.');
+  console.log(chalk.cyan(`  ${displayedCommand} mock`));
+  console.log('    Starts the development server with mock api server.');
+  console.log();
+  console.log(chalk.cyan(`  ${displayedCommand} dev`));
+  console.log('    Starts the development server with development api server.');
+  console.log();
+  console.log(chalk.cyan(`  ${displayedCommand} prod`));
+  console.log('    Starts the development server with production api server.');
   console.log();
   console.log(
     chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}build`)
   );
   console.log('    Bundles the app into static files for production.');
   console.log();
+  console.log(
+    chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}build:dev`)
+  );
+  console.log('    Bundles the app into static files for development.');
+  console.log();
   console.log(chalk.cyan(`  ${displayedCommand} test`));
   console.log('    Starts the test runner.');
-  // console.log();
-  // console.log(
-  //   chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}eject`)
-  // );
-  // console.log(
-  //   '    Removes this tool and copies build dependencies, configuration files'
-  // );
-  // console.log(
-  //   '    and scripts into the app directory. If you do this, you can’t go back!'
-  // );
+  console.log();
+  console.log(chalk.cyan(`  ${displayedCommand} analyze`));
+  console.log('    Starts the analyze bundles size runner.');
   console.log();
   console.log('We suggest that you begin by typing:');
   console.log();
   console.log(chalk.cyan('  cd'), cdpath);
-  console.log(`  ${chalk.cyan(`${displayedCommand} start`)}`);
+  console.log(`  ${chalk.cyan(`${displayedCommand} mock`)}`);
   if (readmeExists) {
     console.log();
     console.log(
