@@ -43,6 +43,7 @@ const {
   prepareProxy,
   prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
+const ora = require('ora');
 const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
 const configFactory = require('../config/webpack.config');
@@ -54,6 +55,7 @@ const closeSteerWatch = steer.watch();
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
+const openLayout = process.env.OPEN_LAYOUT;
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
@@ -80,6 +82,9 @@ if (process.env.HOST) {
   );
   console.log();
 }
+
+let spinner;
+let isOpenBrowser = false;
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
@@ -124,6 +129,20 @@ checkBrowsers(paths.appPath, isInteractive)
       tscCompileOnError,
       webpack,
     });
+    compiler.hooks.done.tap('done', () => {
+      spinner.stop();
+      if (!isOpenBrowser) {
+        openBrowser(`${urls.localUrlForBrowser}${process.env.openLayout ? '/' + process.env.openLayout : ''}`);
+        isOpenBrowser = true;
+      }
+
+      console.log('Existing routing layout:\n');
+      steer.getRuntimeCaches().layouts.forEach(layout => {
+        console.log(`${urls.localUrlForBrowser}/${layout.layoutName}\n`);
+      });
+      console.log('You can see README.md for more information\n');
+    });
+
     // Load proxy config
     const proxySetting = require(paths.appPackageJson).proxy;
     const proxyConfig = prepareProxy(
@@ -158,8 +177,7 @@ checkBrowsers(paths.appPath, isInteractive)
         console.log();
       }
 
-      console.log(chalk.cyan('Starting the development server...\n'));
-      openBrowser(urls.localUrlForBrowser);
+      spinner = ora(chalk.cyan('Starting the development server...\n')).start()
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function(sig) {

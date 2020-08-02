@@ -5,7 +5,6 @@ const path = require('path');
 const ejs = require('ejs');
 const prettier = require("prettier")
 const shell = require('shelljs');
-const ora = require('ora');
 const chokidar = require('chokidar');
 
 const excludePageDirs = ['components', 'models'];
@@ -22,6 +21,7 @@ const steerSourceModelsPath = path.resolve(process.cwd(), 'src/models');
 const steerSourcePluginsPath = path.resolve(process.cwd(), 'src/plugins');
 
 const runtimeCaches = {
+  layouts: [],
   pages: [],
   pageModels: {},
   models: [],
@@ -676,8 +676,6 @@ function watch() {
 }
 
 function run() {
-  const spinner = ora('Compile the project!').start();
-  
   const pages = readPages(steerSourcePagesPath);
   const layouts = readLayouts(steerSourceLayoutsPath);
   const models = readDirFiles(steerSourceModelsPath);
@@ -711,15 +709,18 @@ function run() {
     filePath: 'index.js',
   });
 
-  spinner.stop();
-
   runtimeCaches.layouts = layouts;
   runtimeCaches.pages = pages;
   runtimeCaches.models = models;
   runtimeCaches.plugins = plugins;
 }
 
+function getRuntimeCaches() {
+  return runtimeCaches;
+}
+
 module.exports = {
   run,
   watch,
+  getRuntimeCaches,
 }
