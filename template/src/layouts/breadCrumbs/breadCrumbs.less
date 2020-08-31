@@ -1,0 +1,20 @@
+.breadCrumbs {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  height: @layout-breadcrumb-height;
+  overflow: auto;
+  padding: @layout-breadcrumb-padding;
+
+  :global {
+    .ant-tag {
+      line-height: 28px;
+      padding: 0 @padding-md / 2;
+      border: none;
+      background: #fff;
+      cursor: pointer;
+    }
+  }
+}

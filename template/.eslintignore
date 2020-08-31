@@ -7,8 +7,11 @@
 /coverage
 
 # production
-/build
+/dist
 
 # building
 /src/.steer
 /src/.steer-pro
+
+# editor
+/src/editor

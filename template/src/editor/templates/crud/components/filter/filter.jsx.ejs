@@ -1,0 +1,75 @@
+<%
+  const tableModelNamespace = name + 'Table'
+  const hasOperator = data.table.operators.length > 0
+  const operatorMap = data.table.operators.reduce((_, operator) => ({
+    ..._,
+    [operator]: true,
+  }), {})
+-%>
+
+import React, { useMemo, useCallback } from 'react'
+import { Input, DatePicker, Select } from 'antd'
+import { useModel } from 'steer'
+import { dispatcher } from '@opcjs/zoro'
+import Filter from '@/components/filter/filter'
+<% if (operatorMap.create) { -%>
+import Actions from '@/components/actions/actions'
+<% } -%>
+
+export default function () {
+  const filter = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>.filter)
+
+  const initialValues = useMemo(() => ({
+    gender: 'man',
+  }), [])
+
+  const genderOptions = useMemo(() => ([
+    { label: '男', value: 'man' },
+    { label: '女', value: 'women' },
+  ]), [])
+
+  const handleSearch = useCallback((values) => {
+    dispatcher.<%= tableModelNamespace %>.search(values)
+  }, [])
+
+  <% if (operatorMap.create) { -%>
+  const handleCreate = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.create()
+  }, [])
+  <% } -%>
+
+  return useMemo(() => {
+    return (
+      <Filter
+        ref={filter}
+        initialValues={initialValues}
+        onSearch={handleSearch}
+        <% if (operatorMap.create) { -%>
+        actions={
+          <Actions>
+            <Actions.Action onClick={handleCreate}>创建</Actions.Action>
+          </Actions>
+        }
+        <% } -%>
+      >
+        <Filter.Item name="name">
+          <Input placeholder="名称" />
+        </Filter.Item>
+        <Filter.Item name="birthday">
+          <DatePicker.RangePicker />
+        </Filter.Item>
+        <Filter.Item name="gender" trigger>
+          <Select dropdownMatchSelectWidth={false} options={genderOptions} />
+        </Filter.Item>
+      </Filter>
+    )
+  }, [
+    filter,
+    initialValues,
+    handleSearch,
+    genderOptions,
+    <% if (operatorMap.create) { -%>
+    handleCreate,
+    <% } -%>
+  ])
+}

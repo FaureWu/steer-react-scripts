@@ -1,16 +1,22 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   Switch,
   Route,
   useLocation,
   useHistory,
-  useParams
+  useParams,
+  <% if (editor.enable) { -%>
+  matchPath,
+  <% } -%>
 } from 'react-router-dom'
 import { onRouteChange } from '@/app'
 
 <% pages.forEach(function(page) { -%>
 import <%= page.componentName %> from '<%= page.targetPath %>'
 <% }) -%>
+<% if (editor.enable) { -%>
+import <%= editor.componentName %> from '<%= editor.targetPath %>'
+<% } -%>
 import NotFound from '@/pages/404'
 
 export default function Routes() {
@@ -19,17 +25,29 @@ export default function Routes() {
   const params = useParams()
 
   useEffect(() => {
+    <% if (editor.enable) { -%>
+    const isEditor = matchPath(location.pathname, {
+      path: '<%= editor.route %>',
+      exact: true,
+    })
+    const isPreview = matchPath(location.pathname, {
+      path: '<%= editor.route %>/preview',
+      exact: true,
+    })
+    if (isEditor || isPreview) return;
+    <% } -%>
     onRouteChange({ history, location, params })
-  }, [location])
+  }, [location, history, params])
 
-  return useMemo(() => {
-    return (
-      <Switch>
-        <% pages.forEach(function(page) { -%>
-        <Route exact path="<%= page.route %>" component={<%= page.componentName %>} />
-        <% }) -%>
-        <Route path="*" component={NotFound} />
-      </Switch>
-    )
-  }, [])
+  return (
+    <Switch>
+      <% pages.forEach(function(page) { -%>
+      <Route exact path="<%= page.route %>" component={<%= page.componentName %>} />
+      <% }) -%>
+      <% if (editor.enable) { -%>
+      <Route exact path="<%= editor.route %>" component={<%= editor.componentName %>} />
+      <% } -%>
+      <Route path="*" component={NotFound} />
+    </Switch>
+  )
 }

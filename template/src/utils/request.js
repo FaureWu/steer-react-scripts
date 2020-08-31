@@ -1,6 +1,7 @@
+import qs from 'qs'
 import { dispatcher } from '@opcjs/zoro'
 import { isArray, isString, isNumber, isObject } from '@/utils/tool'
-import { getToken } from '@/utils/auth'
+import { getToken } from '@/services/user'
 
 function resolveParams(route, data) {
   if (
@@ -30,18 +31,33 @@ function resolveParams(route, data) {
   return { url, body: params }
 }
 
-function checkHttpStatus(response) {
+function checkHttpStatus(response, { quite }) {
   if (response.status >= 200 && response.status < 300 && response.ok) {
     return response
   }
 
   if (response.status === 401) {
     dispatcher.user.logout()
+    return
   }
 
   const errMessage = `[${response.status}] 服务器异常，请检查服务器！`
   const error = new Error(errMessage)
   error.response = response
+  if (response.status === 403) {
+    error.message = `无权访问${response.url.replace(
+      (/^http/.test(response.url)
+        ? window.location.origin
+        : process.env.REACT_APP_SERVER) + process.env.REACT_APP_API_PREFIX,
+      '',
+    )}`
+  }
+
+  if (quite) {
+    console.warn(error.message)
+    error.message = ''
+  }
+
   throw error
 }
 
@@ -57,22 +73,43 @@ function checkSuccess(response) {
 
 function throwError(e) {
   if (e.response) throw e
+
   const error = new Error('网络异常，请检查网络情况！')
   throw error
 }
 
+function joinParams(url, params) {
+  const hasQueryParams = url.indexOf('?') !== -1
+
+  if (!isObject(params)) return url
+
+  if (hasQueryParams) return `${url}&${qs.stringify(params)}`
+  else return `${url}?${qs.stringify(params)}`
+}
+
 export default function request(route, options) {
-  const { data, headers = {}, form, ...newOptions } = options
+  const {
+    data,
+    headers = {},
+    form,
+    quite,
+    method = 'GET',
+    ...newOptions
+  } = options
 
   newOptions.credentials = 'include'
   newOptions.headers = headers
+  newOptions.method = method.toLocaleUpperCase()
+  newOptions.headers['Content-Type'] = 'application/json'
 
   const token = getToken()
   if (token) newOptions.headers.Authorization = token
 
   let { url, body } = resolveParams(route, data)
 
-  if (form) {
+  if (['GET', 'DELETE'].indexOf(newOptions.method) !== -1)
+    url = joinParams(url, body)
+  else if (form) {
     newOptions.body = Object.keys(body).reduce((formData, key) => {
       if (isArray(body[key])) {
         body[key].forEach((value) => {
@@ -85,11 +122,11 @@ export default function request(route, options) {
   } else newOptions.body = JSON.stringify(body)
 
   if (!/^http/.test(url)) {
-    url = process.env.REACT_APP_SERVER + url
+    url = process.env.REACT_APP_SERVER + process.env.REACT_APP_API_PREFIX + url
   }
 
   return fetch(url, newOptions)
-    .then(checkHttpStatus)
+    .then((response) => checkHttpStatus(response, { quite }))
     .then((response) => {
       return response.json()
     })

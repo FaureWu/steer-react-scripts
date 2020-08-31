@@ -132,14 +132,15 @@ checkBrowsers(paths.appPath, isInteractive)
     compiler.hooks.done.tap('done', () => {
       spinner.stop();
       if (!isOpenBrowser) {
-        openBrowser(`${urls.localUrlForBrowser}${process.env.openLayout ? '/' + process.env.openLayout : ''}`);
+        openBrowser(`${urls.localUrlForBrowser}${openLayout ? '/' + openLayout : ''}`);
         isOpenBrowser = true;
       }
 
       console.log('Existing routing layout:\n');
       steer.getRuntimeCaches().layouts.forEach(layout => {
-        console.log(`${urls.localUrlForBrowser}/${layout.layoutName}\n`);
+        console.log(`${urls.localUrlForBrowser}/${layout.layoutName}`);
       });
+      console.log();
       console.log('You can see README.md for more information\n');
     });
 

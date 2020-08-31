@@ -1,0 +1,47 @@
+<%
+  const hasOperator = data.table.operators.length > 0
+  const operatorMap = data.table.operators.reduce((_, operator) => ({
+    ..._,
+    [operator]: true,
+  }), {})
+-%>
+
+import React from 'react'
+
+export default {
+  namespace: '<%= name %>Table',
+
+  state: {
+    <% if (data.filter) { -%>
+    filter: React.createRef(),
+    <% } -%>
+    <% if (hasOperator) { -%>
+    activeRow: {},
+    <% } -%>
+    dataSource: [],
+  },
+
+  effects: {
+    <% if (data.filter) { -%>
+    async search() {},
+    <% } -%>
+
+    <% if (operatorMap.create) { -%>
+    async create() {},
+    async createSubmit() {},
+    <% } -%>
+
+    <% if (operatorMap.edit) { -%>
+    async edit() {},
+    async editSubmit() {},
+    <% } -%>
+
+    <% if (operatorMap.view) { -%>
+    async view() {},
+    <% } -%>
+
+    <% if (operatorMap.delete) { -%>
+    async delete() {},
+    <% } -%>
+  },
+}

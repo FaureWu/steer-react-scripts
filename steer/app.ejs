@@ -1,12 +1,15 @@
 import React, { Suspense } from 'react'
 import { Provider } from 'react-redux'
-import { HashRouter as Router } from 'react-router-dom'
+import { Router } from 'react-router-dom'
+import { createHashHistory } from 'history'
 import zoro from '@opcjs/zoro'
 import { createLoading } from '@opcjs/zoro-plugin'
 import { zoro as config } from '@/app'
 import Loading from '@/components/loading/loading'
 import Layout from './layout'
 import Routes from './routes'
+
+import '@/app.less'
 
 const app = zoro(config)
 <% if (models.length) { -%>
@@ -22,20 +25,25 @@ app.use(createLoading())
 <% } -%>
 const store = app.start()
 
-window._APP_ = app
-window._STORE_ = store
+const history = createHashHistory()
+
+export {
+  app,
+  store,
+  history,
+}
 
 export default function App() {
   return (
     <Provider store={store}>
       <Suspense fallback={<Loading />}>
-        <Layout>
-          <Router>
+        <Router history={history}>
+          <Layout>
             <Suspense fallback={<Loading />}>
               <Routes />
             </Suspense>
-          </Router>
-        </Layout>
+          </Layout>
+        </Router>
       </Suspense>
     </Provider>
   )

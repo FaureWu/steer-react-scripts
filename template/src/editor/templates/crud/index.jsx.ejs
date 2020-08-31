@@ -1,0 +1,60 @@
+<%
+  const tableModelNamespace = name + 'Table'
+  const hasOperator = data.table.operators.length > 0
+  const operatorMap = data.table.operators.reduce((_, operator) => ({
+    ..._,
+    [operator]: true,
+  }), {})
+  const hasPageHeader = !data.filter && operatorMap.create
+-%>
+
+import React, {
+  useMemo,
+  <% if (hasPageHeader) { -%>
+  useCallback,
+  <% } -%>
+} from 'react'
+<% if (hasPageHeader) { -%>
+import { dispatcher } from '@opcjs/zoro'
+<% } -%>
+import Page from '@/components/page/page'
+<% if (hasPageHeader) { -%>
+import Actions from '@/components/actions/actions'
+<% } -%>
+
+<% if (data.filter) { -%>
+import Filter from './components/filter/filter'
+<% } -%>
+import Table from './components/table/table'
+
+export default function () {
+  <% if (hasPageHeader) { -%>
+  const handleCreate = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.create()
+  }, [])
+  <% } -%>
+
+  return useMemo(() => {
+    return (
+      <Page>
+        <% if (hasPageHeader) { -%>
+        <Page.Header
+          actions={
+            <Actions>
+              <Actions.Action onClick={handleCreate}>创建</Actions.Action>
+            </Actions>
+          }
+        />
+        <% } -%>
+        <% if (data.filter) { -%>
+        <Filter />
+        <% } -%>
+        <Table />
+      </Page>
+    )
+  }, [
+    <% if (hasPageHeader) { -%>
+    handleCreate,
+    <% } -%>
+  ])
+}

@@ -1,0 +1,28 @@
+{
+  "name": "steer-react-app",
+  "title": "Steer App",
+  "scripts": {
+    "start": "REACT_APP_ENV=mock node ../scripts/start.js",
+    "build": "REACT_APP_ENV=prod node ../scripts/build.js",
+    "analyze": "node ../scripts/analyze.js"
+  },
+  "dependencies": {
+    "@opcjs/zoro": "^3",
+    "@opcjs/zoro-plugin": "^3",
+    "antd": "^4",
+    "beautiful-react-hooks": "^0",
+    "classnames": "^2",
+    "dayjs": "^1",
+    "qs": "^6",
+    "react-redux": "^7",
+    "react-router-dom": "^5",
+    "react-transition-group": "^4",
+    "reselect": "^4"
+  },
+  "devDependencies": {
+    "faker": "^4",
+    "react": "^16",
+    "react-dom": "^16",
+    "source-map-explorer": "^2"
+  }
+}

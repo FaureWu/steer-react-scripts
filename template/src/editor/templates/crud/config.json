@@ -1,0 +1,52 @@
+{
+  "title": "增删改查模版",
+  "value": {
+    "filter": true,
+    "table": {
+      "pagination": true,
+      "operators": ["create", "edit", "view", "delete"]
+    },
+    "tree": true
+  },
+  "config": {
+    "tree": {
+      "type": "checkbox",
+      "defaultValue": false,
+      "label": "是否开启树形筛选"
+    },
+    "filter": {
+      "type": "checkbox",
+      "defaultValue": true,
+      "label": "是否开启筛选"
+    },
+    "table": {
+      "type": "group",
+      "label": "表格配置",
+      "config": {
+        "operators": {
+          "type": "checkboxGroup",
+          "defaultValue": [],
+          "label": "操作配置",
+          "options": [{
+            "label": "创建",
+            "value": "create"
+          }, {
+            "label": "编辑",
+            "value": "edit"
+          }, {
+            "label": "查看",
+            "value": "view"
+          }, {
+            "label": "删除",
+            "value": "delete"
+          }]
+        },
+        "pagination": {
+          "type": "checkbox",
+          "defaultValue": true,
+          "label": "是否开启表格分页"
+        }
+      }
+    }
+  }
+}

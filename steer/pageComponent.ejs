@@ -1,9 +1,12 @@
 import { lazy } from 'react'
+<% if (models.length) { -%>
+import { app } from 'steer'
+<% } -%>
 
 export default lazy(() => {
   <% if (models.length) { -%>
     <% models.forEach(function(model) { -%>
-      window._APP_.model__quiet(require('<%= model %>').default)
+      app.model__quiet(require('<%= model %>').default)
     <% }) -%>
   <% } -%>
 

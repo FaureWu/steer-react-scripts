@@ -1,0 +1,22 @@
+.modal {
+  :global {
+    .ant-modal-header {
+      padding: @padding-sm @padding-md @padding-sm @padding-md;
+    }
+  }
+
+  &.closable {
+    :global {
+      .ant-modal-header {
+        padding: @padding-sm @padding-md * 2 + @padding-xs @padding-sm @padding-md;
+      }
+    }
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

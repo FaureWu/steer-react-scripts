@@ -7,8 +7,15 @@ const prettier = require("prettier")
 const shell = require('shelljs');
 const chokidar = require('chokidar');
 
+const editor = {
+  enable: process.env.NODE_ENV === 'development' && process.env.REACT_APP_ENABLE_TEMPLATE === 'true',
+  sourcePath: path.resolve(process.cwd(), 'src/editor/index.jsx'),
+  targetPath: path.resolve(process.cwd(), 'src/editor/index.jsx'),
+  componentName: 'PEditor',
+  route: process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE,
+}
+
 const excludePageDirs = ['components', 'models'];
-const ignorePages = ['404'];
 
 const steerTemplatePath = path.resolve(__dirname, '../steer');
 let steerTargetPath = path.resolve(process.cwd(), 'src/.steer');
@@ -19,6 +26,10 @@ const steerSourceLayoutsPath = path.resolve(process.cwd(), 'src/layouts');
 const steerSourcePagesPath = path.resolve(process.cwd(), 'src/pages');
 const steerSourceModelsPath = path.resolve(process.cwd(), 'src/models');
 const steerSourcePluginsPath = path.resolve(process.cwd(), 'src/plugins');
+
+const ignorePages = [
+  path.resolve(steerSourcePagesPath, '404')
+]
 
 const runtimeCaches = {
   layouts: [],
@@ -206,7 +217,7 @@ function readPages(pageDir) {
         return pages;
       }
 
-      if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(file => file === name)) return pages;
+      if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(file => file === path.resolve(dir, name))) return pages;
 
       const relationFilePath = filePath.replace(steerSourcePagesPath, '');
       const pageName = getPageNameByPath(relationFilePath);
@@ -306,7 +317,7 @@ function pageFileChange(file) {
   });
   renderTemplate({
     template: 'routes.ejs',
-    templateData: { pages: runtimeCaches.pages },
+    templateData: { pages: runtimeCaches.pages, editor },
     filePath: 'routes.jsx',
   });
 }
@@ -374,9 +385,9 @@ function pluginFileChange(file) {
  * 文件改变
  */
 function fileChange(file) {
-  const { ext } = path.parse(file);
+  const { ext, dir, name } = path.parse(file);
 
-  if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return;
+  if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(filePath => filePath === path.resolve(dir, name))) return;
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileChange(file);
 
@@ -435,7 +446,7 @@ function pageFileRemove(file) {
 
   renderTemplate({
     template: 'routes.ejs',
-    templateData: { pages: runtimeCaches.pages },
+    templateData: { pages: runtimeCaches.pages, editor },
     filePath: 'routes.jsx',
   });
   if (removePage) shell.rm('-rf', removePage.targetPath);
@@ -493,9 +504,9 @@ function pluginFileRemove(file) {
  * 文件删除
  */
 function fileRemove(file) {
-  const { ext } = path.parse(file);
+  const { ext, dir, name } = path.parse(file);
 
-  if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return;
+  if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(filePath => filePath === path.resolve(dir, name))) return;
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileRemove(file);
 
@@ -566,7 +577,7 @@ function pageFileAdd(file) {
   });
   renderTemplate({
     template: 'routes.ejs',
-    templateData: { pages: runtimeCaches.pages },
+    templateData: { pages: runtimeCaches.pages, editor },
     filePath: 'routes.jsx',
   });
 }
@@ -638,9 +649,9 @@ function pluginsFileAdd(file) {
  * 文件新增
  */
 function fileAdd(file) {
-  const { ext } = path.parse(file);
+  const { ext, dir, name } = path.parse(file);
 
-  if (!/^\.(js|jsx|ts|tsx)$/.test(ext)) return;
+  if (!/^\.(js|jsx|ts|tsx)$/.test(ext) || ignorePages.some(filePath => filePath === path.resolve(dir, name))) return;
 
   if (file.indexOf(steerSourcePagesPath) !== -1) pageFileAdd(file);
 
@@ -688,8 +699,13 @@ function run() {
 
   renderPagesTemplate(pages);
   renderTemplate({
+    template: 'dayjs.ejs',
+    templateData: {},
+    filePath: 'dayjs.js',
+  })
+  renderTemplate({
     template: 'routes.ejs',
-    templateData: { pages },
+    templateData: { pages, editor },
     filePath: 'routes.jsx',
   });
   renderLayoutsTemplate(layouts);

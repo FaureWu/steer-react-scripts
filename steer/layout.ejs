@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
 <% layouts.forEach(function(layout) { -%>
   import <%= layout.componentName %> from '<%= layout.targetPath %>'
@@ -10,31 +10,20 @@ const LayoutComponents = {
   <% }) %>
 }
 
+function getLayoutComponent() {
+  const match = window.location.pathname.match(/^\/([^/]+)\/?$/)
+  if (match) return LayoutComponents[match[1]]
+  return null
+}
+
 function Layout({ children }) {
-  const layoutName = useMemo(() => {
-    const match = window.location.pathname.match(/^\/([^/]+)\/?$/)
-    if (match) {
-      return match[1]
-    }
+  const LayoutComponent = getLayoutComponent()
 
-    return ''
-  }, [])
+  if (LayoutComponent) {
+    return <LayoutComponent>{children}</LayoutComponent>
+  }
 
-  const LayoutComponent = useMemo(() => {
-    return LayoutComponents[layoutName]
-  }, [layoutName])
-
-  return useMemo(() => {
-    if (LayoutComponent) {
-      return (
-        <LayoutComponent>
-          {children}
-        </LayoutComponent>
-      )
-    }
-
-    return children
-  }, [children])
+  return children
 }
 
 export default Layout

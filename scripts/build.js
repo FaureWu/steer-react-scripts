@@ -37,6 +37,7 @@ const fs = require('fs-extra');
 const webpack = require('webpack');
 const configFactory = require('../config/webpack.config');
 const paths = require('../config/paths');
+const ora = require('ora');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
@@ -161,11 +162,12 @@ function build(previousFileSizes) {
     console.log();
   }
 
-  console.log('Creating an optimized production build...');
+  const spinner = ora(chalk.cyan('Creating an optimized production build...')).start();
 
   const compiler = webpack(config);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
+      spinner.stop();
       let messages;
       if (err) {
         if (!err.message) {

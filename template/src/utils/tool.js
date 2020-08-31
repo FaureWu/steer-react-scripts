@@ -47,3 +47,59 @@ export function isBoolean(data) {
 export function isUndefined(data) {
   return check(data, '[object Undefined]')
 }
+
+export function isFunction(data) {
+  return check(data, '[object Function]')
+}
+
+export function setLocalStorage(key, data) {
+  try {
+    if (isArray(data) || isObject(data)) window.localStorage.setItem(key, JSON.stringify(data))
+    else window.localStorage.setItem(key, data)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export function getLocalStorage(key) {
+  if (!isString(key)) return
+
+  const data = window.localStorage.getItem(key)
+  try {
+    return JSON.parse(data)
+  } catch (e) {
+    return data
+  }
+}
+
+export function removeLocalStorage(key) {
+  if (!isString(key)) return
+
+  localStorage.removeItem(key)
+}
+
+export function setSessionStorage(key, data) {
+  try {
+    if (isArray(data) || isObject(data)) window.sessionStorage.setItem(key, JSON.stringify(data))
+    else window.sessionStorage.setItem(key, data)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export function getSessionStorage(key) {
+  if (!isString(key)) return
+
+  const data = window.sessionStorage.getItem(key)
+  try {
+    return JSON.parse(data)
+  } catch (e) {
+    return data
+  }
+}
+
+export function removeSessionStorage(key) {
+  if (!isString(key)) return
+
+  sessionStorage.removeItem(key)
+}

@@ -1,0 +1,108 @@
+<%
+  const tableModelNamespace = name + 'Table'
+  const hasOperator = data.table.operators.length > 0
+  const operatorMap = data.table.operators.reduce((_, operator) => ({
+    ..._,
+    [operator]: true,
+  }), {})
+-%>
+
+import React, { useMemo, useCallback } from 'react'
+import { useModel } from 'steer'
+<% if (hasOperator) { -%>
+import { dispatcher } from '@opcjs/zoro'
+<% } -%>
+import Table from '@/components/table/table'
+import Actions from '@/components/actions/actions'
+
+
+export default function () {
+  const {
+    dataSource,
+  } = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>)
+
+  <% if (operatorMap.edit) { -%>
+  const handleEdit = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.edit()
+  }, [])
+  <% } -%>
+
+  <% if (operatorMap.view) { -%>
+  const handleView = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.view()
+  }, [])
+  <% } -%>
+
+  <% if (operatorMap.delete) { -%>
+  const handleDelete = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.delete()
+  }, [])
+  <% } -%>
+
+  <% if (hasOperator) { -%>
+  const handleRow = useCallback((record) => {
+    return {
+      onClick: () => dispatcher.<%= tableModelNamespace %>.update({ activeRow: record })
+    }
+  }, [])
+  <% } -%>
+
+  <% if (hasOperator) { -%>
+  const renderActions = useCallback(() => (
+    <Actions size="small">
+      <% if (operatorMap.edit) { -%>
+      <Actions.Action onClick={handleEdit}>编辑</Actions.Action>
+      <% } -%>
+      <% if (operatorMap.view) { -%>
+      <Actions.Action onClick={handleView}>详情</Actions.Action>
+      <% } -%>
+      <% if (operatorMap.delete) { -%>
+      <Actions.Action danger onClick={handleDelete}>删除</Actions.Action>
+      <% } -%>
+    </Actions>
+  ), [
+    <% if (operatorMap.edit) { -%>
+    handleEdit,
+    <% } -%>
+    <% if (operatorMap.view) { -%>
+    handleView,
+    <% } -%>
+    <% if (operatorMap.delete) { -%>
+    handleDelete,
+    <% } -%>
+  ])
+  <% } -%>
+
+  return useMemo(() => {
+    return (
+      <Table
+        dataSource={dataSource}
+        rowKey="id"
+        <% if (hasOperator) { -%>
+        onRow={handleRow}
+        <% } -%>
+      >
+        <Table.Column title="姓名" dataIndex="name" />
+        <Table.Column title="年龄" dataIndex="age" />
+        <Table.Column title="性别" dataIndex="gender" />
+        <Table.Column title="生日" dataIndex="birthday" />
+        <Table.Column title="家庭住址" dataIndex="address" />
+        <% if (hasOperator) { -%>
+        <Table.Column
+          title="操作"
+          align="right"
+          width={130}
+          dataIndex="action"
+          render={renderActions}
+        />
+        <% } -%>
+      </Table>
+    )
+  }, [
+    dataSource,
+    <% if (hasOperator) { -%>
+    renderActions,
+    handleRow,
+    <% } -%>
+  ])
+}

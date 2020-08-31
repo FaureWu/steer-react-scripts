@@ -110,10 +110,7 @@ module.exports = function(
   const templatePath = path.resolve(__dirname, `../${templateName.replace('cra-', '')}`)
   let templateJsonPath;
   if (templateName) {
-    templateJsonPath = path.join(templatePath, 'template.json');
-  } else {
-    // TODO: Remove support for this in v4.
-    templateJsonPath = path.join(appPath, '.template.dependencies.json');
+    templateJsonPath = path.join(templatePath, 'package.json');
   }
 
   let templateJson = {};

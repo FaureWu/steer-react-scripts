@@ -32,15 +32,22 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 // @remove-on-eject-begin
 const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
 const postcssNormalize = require('postcss-normalize');
-const { getThemeVariables } = require('antd/dist/theme')
+const { getThemeVariables } = require('antd/dist/theme');
+const lessToJs = require('less-vars-to-js');
 
 const appPackageJson = require(paths.appPackageJson);
-const antdTheme = require(paths.themeConfig);
+
+const less = fs.readFileSync(paths.themeLess, 'utf8');
+const antdTheme = lessToJs(less, { resolveVariables: true, stripPrefix: false });
+
+let steerTargetPath = path.resolve(process.cwd(), 'src/.steer');
+if (process.env.NODE_ENV === 'production') {
+  steerTargetPath = path.resolve(process.cwd(), 'src/.steer-pro');
+}
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -80,7 +87,7 @@ module.exports = function(webpackEnv) {
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 
   // common function to get style loaders
-  const getStyleLoaders = (cssOptions, preProcessor, preProcessorOptions = {}) => {
+  const getStyleLoaders = (cssOptions, preProcessor, ...otherLoaders) => {
     const loaders = [
       isEnvDevelopment && require.resolve('style-loader'),
       isEnvProduction && {
@@ -130,14 +137,19 @@ module.exports = function(webpackEnv) {
           },
         },
         {
-          loader: require.resolve(preProcessor),
+          loader: require.resolve(preProcessor.loader),
           options: {
             sourceMap: true,
-            ...preProcessorOptions,
+            ...preProcessor.options,
           },
         }
       );
     }
+
+    if (otherLoaders.length > 0) {
+      loaders.push(...otherLoaders);
+    }
+
     return loaders;
   };
 
@@ -312,6 +324,8 @@ module.exports = function(webpackEnv) {
         }),
         ...(modules.webpackAliases || {}),
         '@': paths.appSrc,
+        moment: 'dayjs',
+        steer: path.resolve(steerTargetPath, './index.js'),
       },
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
@@ -424,6 +438,15 @@ module.exports = function(webpackEnv) {
                       },
                     },
                   ],
+                  [
+                    require.resolve('babel-plugin-import'),
+                    {
+                      libraryName: 'antd',
+                      libraryDirectory: 'es',
+                      style: true,
+                    },
+                    'antd',
+                  ],
                 ],
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -497,8 +520,10 @@ module.exports = function(webpackEnv) {
             },
             // Opt-in support for LESS (using .less extensions).
             // By default we support LESS Modules
+            // not with the node_modules
             {
               test: lessRegex,
+              exclude: [paths.appNodeModules, paths.appLess],
               use: getStyleLoaders(
                 {
                   importLoaders: 3,
@@ -507,17 +532,46 @@ module.exports = function(webpackEnv) {
                     getLocalIdent: getCSSModuleLocalIdent,
                   },
                 },
-                'less-loader',
                 {
-                  lessOptions: {
-                    modifyVars: {
-                      ...getThemeVariables({
-                        dark: process.env.ANTD_THEME_DARK,
-                        compact: process.env.ANTD_THEME_COMPACT,
-                      }),
-                      ...antdTheme,
+                  loader: require.resolve('less-loader'),
+                },
+                {
+                  loader: require.resolve('style-resources-loader'),
+                  options: {
+                    patterns: paths.themeLess,
+                    injector: 'append',
+                  },
+                },
+              ),
+              // Don't consider CSS imports dead code even if the
+              // containing package claims to have no side effects.
+              // Remove this when webpack adds a warning or an error for this.
+              // See https://github.com/webpack/webpack/issues/6571
+              sideEffects: true,
+            },
+            // Opt-in support for LESS (using .less extensions).
+            // only build the node_modules
+            {
+              test: lessRegex,
+              include: [paths.appNodeModules, paths.appLess],
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isEnvProduction && shouldUseSourceMap,
+                },
+                {
+                  loader: 'less-loader',
+                  options: {
+                    lessOptions: {
+                      modifyVars: {
+                        ...getThemeVariables({
+                          dark: process.env.ANTD_THEME_DARK === 'true',
+                          compact: process.env.ANTD_THEME_COMPACT === 'true',
+                        }),
+                        ...antdTheme,
+                      },
+                      javascriptEnabled: true,
                     },
-                    javascriptEnabled: true,
                   },
                 },
               ),
@@ -539,7 +593,9 @@ module.exports = function(webpackEnv) {
                     getLocalIdent: getCSSModuleLocalIdent,
                   },
                 },
-                'sass-loader'
+                {
+                  loader: 'sass-loader',
+                },
               ),
               // Don't consider CSS imports dead code even if the
               // containing package claims to have no side effects.
@@ -570,7 +626,6 @@ module.exports = function(webpackEnv) {
       ],
     },
     plugins: [
-      new AntdDayjsWebpackPlugin(),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
