@@ -1,0 +1,92 @@
+<%
+  const detailModelNamespace = name + 'Detail'
+-%>
+import React, {
+  useMemo,
+  <% if (data.back) { -%>
+  useCallback,
+  <% } -%>
+} from 'react'
+<% if (data.back) { -%>
+import { history } from 'steer'
+<% } -%>
+import { useDidMount, useWillUnmount } from 'beautiful-react-hooks'
+import { dispatcher } from '@opcjs/zoro'
+import { useLocation } from 'react-router-dom'
+<% if (data.status) { -%>
+import { Tag } from 'antd'
+import { CheckCircleOutlined, SyncOutlined, CloseCircleOutlined } from '@ant-design/icons'
+<% } -%>
+<% if (data.actions) { -%>
+import Actions from '@/components/actions/actions'
+<% } -%>
+import Page from '@/components/page/page'
+
+import View from './components/view/view'
+<% if (data.table) { -%>
+import Table from './components/table/table'
+<% } -%>
+
+export default function () {
+  const location = useLocation()
+  <% if (data.back) { -%>
+  const handleBack = useCallback(() => {
+    history.goBack()
+  }, [])
+  <% } -%>
+
+  useDidMount(() => {
+    dispatcher.<%= detailModelNamespace %>.query(location.query)
+  })
+
+  useWillUnmount(() => {
+    dispatcher.<%= detailModelNamespace %>.clear()
+  })
+
+  return useMemo(() => {
+    return (
+      <Page>
+        <Page.Header
+          title="详情页"
+          description="详情页描述信息"
+          <% if (data.back) { -%>
+          onBack={handleBack}
+          <% } -%>
+          <% if (data.status) { -%>
+          tags={
+            <>
+              <Tag icon={<CheckCircleOutlined />} color="success">
+                成功
+              </Tag>
+              <Tag icon={<SyncOutlined spin />} color="processing">
+                进行中
+              </Tag>
+              <Tag icon={<CloseCircleOutlined />} color="error">
+                失败
+              </Tag>
+            </>
+          }
+          <% } -%>
+          <% if (data.actions) { -%>
+          actions={
+            <Actions max={3}>
+              <Actions.Action type="text">辅助操作</Actions.Action>
+              <Actions.Action type="primary">主操作</Actions.Action>
+              <Actions.Action disabled>禁用操作</Actions.Action>
+              <Actions.Action danger>危险操作</Actions.Action>
+            </Actions>
+          }
+          <% } -%>
+        />
+        <View />
+        <% if (data.table) { -%>
+        <Table />
+        <% } -%>
+      </Page>
+    )
+  }, [
+    <% if (data.back) { -%>
+    handleBack,
+    <% } -%>
+  ])
+}

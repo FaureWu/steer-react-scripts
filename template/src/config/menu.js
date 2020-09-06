@@ -4,17 +4,6 @@ export const menus = [{
   title: '首页',
   route: '/',
   icon: 'HomeOutlined',
-}, {
-  title: '订单管理',
-  route: '/order',
-  icon: 'ContainerOutlined',
-  children: [{
-    title: '订单列表',
-    route: '/order/list',
-  }, {
-    title: '订单详情',
-    route: '/order/detail',
-  }],
 }]
 
 function getRoutes(menus) {

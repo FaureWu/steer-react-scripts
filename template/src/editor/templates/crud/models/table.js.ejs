@@ -1,47 +1,145 @@
 <%
+  const components = data.components
   const hasOperator = data.table.operators.length > 0
   const operatorMap = data.table.operators.reduce((_, operator) => ({
     ..._,
     [operator]: true,
   }), {})
+  const hasPagination = data.table.pagination
 -%>
-
+<% if (components.filter) { -%>
 import React from 'react'
+<% } -%>
+import {
+  crudQuery,
+  <% if (components.tree) { -%>
+  crudTree,
+  <% } -%>
+} from '@/services/demo'
+
+const defaultState = {
+  dataSource: [],
+  <% if (components.tree) { -%>
+  treeData: [],
+  activeTreeItem: {},
+  <% } -%>
+}
 
 export default {
   namespace: '<%= name %>Table',
 
   state: {
-    <% if (data.filter) { -%>
+    <% if (components.filter) { -%>
     filter: React.createRef(),
     <% } -%>
-    <% if (hasOperator) { -%>
-    activeRow: {},
-    <% } -%>
-    dataSource: [],
+    ...defaultState,
   },
 
+  mixins: [
+    'update',
+    <% if (hasPagination) { -%>
+    'pagination',
+    <% } -%>
+  ],
+
   effects: {
-    <% if (data.filter) { -%>
-    async search() {},
+    <% if (components.filter) { -%>
+    async search(action, { put }) {
+      <% if (hasPagination) { -%>
+      put({ type: 'resetPagination' })
+      <% } -%>
+      await put({ type: 'query' })
+    },
     <% } -%>
 
-    <% if (operatorMap.create) { -%>
-    async create() {},
-    async createSubmit() {},
+    <% if (hasPagination) { -%>
+    async change({ payload }, { put }) {
+      put({ type: 'updatePagination', payload: payload.pagination })
+      await put({ type: 'query' })
+    },
     <% } -%>
 
-    <% if (operatorMap.edit) { -%>
-    async edit() {},
-    async editSubmit() {},
+    async query({ payload }, { put<% if (components.filter || hasPagination || components.tree) { %>, select<% } %> }) {
+      <% if (components.filter || hasPagination || components.tree) { -%>
+      const {
+        <% if (components.filter) { -%>
+        filter,
+        <% } -%>
+        <% if (hasPagination) { -%>
+        pagination,
+        <% } -%>
+        <% if (components.tree) { -%>
+        activeTreeItem,
+        <% } -%>
+      } = select()
+
+      <% if (components.filter) { -%>
+      const params = filter.current.getFieldsValue()
+      <% } -%>
+      <% if (!components.filter) { -%>
+      const params = {}
+      <% } -%>
+      <% if (components.tree) { -%>
+      params.activeTreeKey = activeTreeItem.key
+      <% } -%>
+      <% if (hasPagination) { -%>
+      params.current = pagination.current
+      params.pageSize = pagination.pageSize
+      <% } -%>
+      <% } -%>
+
+      const {
+        data = [],
+        <% if (hasPagination) { -%>
+        total = 0,
+        <% } -%>
+      } = await crudQuery(
+        <% if (components.filter || hasPagination || components.tree) { -%>
+        params
+        <% } -%>
+      )
+      <% if (hasPagination) { -%>
+      put({ type: 'updatePagination', payload: { total } })
+      <% } -%>
+      put({ type: 'update', payload: { dataSource: data } })
+    },
+
+    <% if (components.tree) { -%>
+    async queryTree(action, { put }) {
+      const { data = [] } = await crudTree()
+      put({ type: 'update', payload: { treeData: data } })
+    },
     <% } -%>
 
-    <% if (operatorMap.view) { -%>
-    async view() {},
+    <% if (components.tree) { -%>
+    async selectTree({ payload }, { put }) {
+      put({ type: 'update', payload: { activeTreeItem: payload } })
+      <% if (hasPagination) { -%>
+      put({ type: 'resetPagination' })
+      <% } -%>
+      await put({ type: 'query' })
+    },
     <% } -%>
 
-    <% if (operatorMap.delete) { -%>
-    async delete() {},
+    clear(action, { put }) {
+      <% if (hasPagination) { -%>
+      put({ type: 'clearPagination' })
+      <% } -%>
+      <% if (hasOperator) { -%>
+      put({ type: '<%= name %>Operator/clear' })
+      <% } -%>
+      put({ type: 'update', payload: defaultState })
+    },
+  },
+
+  reducers: {
+    <% if (components.tree) { -%>
+    selectTree({ payload }, state) {
+      return {
+        ...state,
+        activeTreeItem: payload,
+      }
+    },
     <% } -%>
   },
 }

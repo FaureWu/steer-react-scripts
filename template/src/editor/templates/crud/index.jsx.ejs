@@ -1,11 +1,12 @@
 <%
-  const tableModelNamespace = name + 'Table'
+  const components = data.components
+  const operatorModelNamespace = name + 'Operator'
   const hasOperator = data.table.operators.length > 0
   const operatorMap = data.table.operators.reduce((_, operator) => ({
     ..._,
     [operator]: true,
   }), {})
-  const hasPageHeader = !data.filter && operatorMap.create
+  const hasPageHeader = !components.filter && operatorMap.create
 -%>
 
 import React, {
@@ -22,15 +23,27 @@ import Page from '@/components/page/page'
 import Actions from '@/components/actions/actions'
 <% } -%>
 
-<% if (data.filter) { -%>
+<% if (components.filter) { -%>
 import Filter from './components/filter/filter'
 <% } -%>
+<% if (components.tree) { -%>
+import Tree from './components/tree/tree'
+<% } %>
+<% if (operatorMap.create) { -%>
+import Create from './components/operator/create'
+<% } %>
+<% if (operatorMap.edit) { -%>
+import Edit from './components/operator/edit'
+<% } %>
+<% if (operatorMap.view) { -%>
+import View from './components/operator/view'
+<% } %>
 import Table from './components/table/table'
 
 export default function () {
   <% if (hasPageHeader) { -%>
   const handleCreate = useCallback(() => {
-    dispatcher.<%= tableModelNamespace %>.create()
+    dispatcher.<%= operatorModelNamespace %>.create()
   }, [])
   <% } -%>
 
@@ -46,10 +59,24 @@ export default function () {
           }
         />
         <% } -%>
-        <% if (data.filter) { -%>
+        <% if (components.tree) { -%>
+        <Page.Sider>
+          <Tree />
+        </Page.Sider>
+        <% } -%>
+        <% if (components.filter) { -%>
         <Filter />
         <% } -%>
         <Table />
+        <% if (operatorMap.create) { -%>
+        <Create />
+        <% } -%>
+        <% if (operatorMap.edit) { -%>
+        <Edit />
+        <% } -%>
+        <% if (operatorMap.view) { -%>
+        <View />
+        <% } -%>
       </Page>
     )
   }, [

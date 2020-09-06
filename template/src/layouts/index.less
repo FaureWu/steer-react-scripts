@@ -11,6 +11,7 @@
   justify-content: space-between;
   align-items: center;
   z-index: @layout-header-zindex;
+  box-shadow: @layout-header-box-shadow;
 
   .collapsed {
     font-size: 24px;
@@ -20,7 +21,8 @@
 
 .scroll {
   position: relative;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: calc(~"100vh - @{layout-header-height}");
   padding: @padding-md * 2 @padding-md * 2 0;
   box-sizing: border-box;

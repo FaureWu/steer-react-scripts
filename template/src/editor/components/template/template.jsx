@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react'
-import { Row, Col, Skeleton, Spin, Empty } from 'antd'
+import React, { useMemo, useState, useCallback } from 'react'
+import { Row, Col, Skeleton, Spin, Empty, message } from 'antd'
+import { EyeOutlined } from '@ant-design/icons'
 import { useDidMount } from 'beautiful-react-hooks'
 import { useOnce } from '@/utils/hook'
 import { noop } from '@/utils/tool'
 
-import { getEditorTemplates } from '../../service'
+import { getEditorTemplates, previewPage } from '../../service'
 
 import styles from './template.less'
 
@@ -21,6 +22,19 @@ function Template({ onSelect = noop }) {
       })
       .finally(() => setLoading(false))
   })
+
+  const handlePreview = useCallback((e, template) => {
+    e.stopPropagation()
+    message.loading('预览页面生成中！', 0)
+    previewPage({
+      template,
+      value: template.value,
+    })
+      .then((url) => window.open(`${window.location.origin}/index#${url}`))
+      .finally(() => {
+        message.destroy()
+      })
+  }, [])
 
   return useMemo(() => {
     return (
@@ -42,6 +56,13 @@ function Template({ onSelect = noop }) {
                     onClick={() => onSelect(template)}
                   >
                     {template.title}
+                    <div
+                      className={styles.icon}
+                      title="预览"
+                      onClick={(e) => handlePreview(e, template)}
+                    >
+                      <EyeOutlined />
+                    </div>
                   </div>
                 </Col>
               ))}
@@ -50,7 +71,7 @@ function Template({ onSelect = noop }) {
         </Spin>
       </Skeleton>
     )
-  }, [loading, onSelect, skeleton, templates])
+  }, [handlePreview, loading, onSelect, skeleton, templates])
 }
 
 export default Template

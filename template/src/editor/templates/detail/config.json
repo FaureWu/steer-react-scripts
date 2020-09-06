@@ -1,0 +1,32 @@
+{
+  "title": "详情页面模版",
+  "entry": "index.jsx",
+  "value": {
+    "status": true,
+    "back": true,
+    "table": true,
+    "actions": true
+  },
+  "config": {
+    "status": {
+      "type": "checkbox",
+      "defaultValue": true,
+      "label": "是否显示状态"
+    },
+    "back": {
+      "type": "checkbox",
+      "defaultValue": true,
+      "label": "是否需要返回按钮"
+    },
+    "table": {
+      "type": "checkbox",
+      "defaultValue": true,
+      "label": "是否需要详情表格"
+    },
+    "actions": {
+      "type": "checkbox",
+      "defaultValue": true,
+      "label": "是否需要操作按钮"
+    }
+  }
+}

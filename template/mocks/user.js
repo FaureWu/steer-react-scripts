@@ -34,20 +34,6 @@ export default {
           },
         ],
       },
-      {
-        name: '订单管理',
-        path: '/order',
-        children: [
-          {
-            name: '订单列表',
-            path: '/order/list',
-          },
-          {
-            name: '订单详情',
-            path: '/order/detail',
-          },
-        ],
-      },
     ],
   },
 }

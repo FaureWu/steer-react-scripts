@@ -1,5 +1,7 @@
+<% if (data.components.filter) { -%>
 <%
   const tableModelNamespace = name + 'Table'
+  const operatorModelNamespace = name + 'Operator'
   const hasOperator = data.table.operators.length > 0
   const operatorMap = data.table.operators.reduce((_, operator) => ({
     ..._,
@@ -17,7 +19,7 @@ import Actions from '@/components/actions/actions'
 <% } -%>
 
 export default function () {
-  const filter = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>.filter)
+  const { filter } = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>)
 
   const initialValues = useMemo(() => ({
     gender: 'man',
@@ -28,13 +30,13 @@ export default function () {
     { label: '女', value: 'women' },
   ]), [])
 
-  const handleSearch = useCallback((values) => {
-    dispatcher.<%= tableModelNamespace %>.search(values)
+  const handleSearch = useCallback(() => {
+    dispatcher.<%= tableModelNamespace %>.search()
   }, [])
 
   <% if (operatorMap.create) { -%>
   const handleCreate = useCallback(() => {
-    dispatcher.<%= tableModelNamespace %>.create()
+    dispatcher.<%= operatorModelNamespace %>.create()
   }, [])
   <% } -%>
 
@@ -44,10 +46,16 @@ export default function () {
         ref={filter}
         initialValues={initialValues}
         onSearch={handleSearch}
-        <% if (operatorMap.create) { -%>
+        <% if (!data.filter.allowReset) { -%>
+        allowReset={false}
+        <% } -%>
+        <% if (operatorMap.create || data.filter.actions) { -%>
         actions={
           <Actions>
             <Actions.Action onClick={handleCreate}>创建</Actions.Action>
+            <% if (data.filter.actions) { -%>
+            <Actions.Action>按钮</Actions.Action>
+            <% } -%>
           </Actions>
         }
         <% } -%>
@@ -73,3 +81,4 @@ export default function () {
     <% } -%>
   ])
 }
+<% } -%>

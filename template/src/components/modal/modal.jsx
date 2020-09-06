@@ -1,19 +1,31 @@
-import React, { useMemo } from 'react'
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from 'react'
 import { Modal as AntModal } from 'antd'
 import classNames from 'classnames'
 
 import styles from './modal.less'
 
-function Modal({
-  destroyOnClose = true,
-  forceRender = true,
-  centered = true,
-  closable,
-  title,
-  actions,
-  children,
-  ...props
-}) {
+function Modal(
+  {
+    destroyOnClose = true,
+    forceRender = true,
+    centered = true,
+    closable,
+    visible,
+    title,
+    actions,
+    children,
+    ...props
+  },
+  ref,
+) {
+  const [show, setShow] = useState()
+
   const titleEle = useMemo(() => {
     if (!title && !actions) return null
 
@@ -25,10 +37,19 @@ function Modal({
     )
   }, [actions, title])
 
+  useEffect(() => {
+    setShow(visible)
+  }, [visible])
+  useImperativeHandle(ref, () => ({
+    show: () => setShow(true),
+    hide: () => setShow(false),
+  }))
+
   return useMemo(() => {
     return (
       <AntModal
         {...props}
+        visible={show}
         closable={closable}
         className={classNames(styles.modal, { [styles.closable]: closable })}
         title={titleEle}
@@ -46,8 +67,9 @@ function Modal({
     destroyOnClose,
     forceRender,
     props,
+    show,
     titleEle,
   ])
 }
 
-export default Modal
+export default forwardRef(Modal)

@@ -1,12 +1,14 @@
 import React, { useMemo, useCallback } from 'react'
 import { Table as AntTable } from 'antd'
 
+import Column from './column'
+
 function loopChildren(children) {
   let x = 0
   React.Children.forEach(children, (child) => {
     if (child.type === AntTable.ColumnGroup) {
       x += loopChildren(child.props.children)
-    } else if (child.type === AntTable.Column) {
+    } else if (child.type === Column) {
       x += child.props.width || 100
     }
   })
@@ -24,6 +26,7 @@ function Table({ columns, scroll, size = 'middle', children, ...props }) {
     if (!data.x) {
       data.x = calcX()
     }
+    return data
   }, [calcX, scroll])
 
   return useMemo(() => {
@@ -35,7 +38,7 @@ function Table({ columns, scroll, size = 'middle', children, ...props }) {
   }, [children, props, realScroll, size])
 }
 
-Table.Column = AntTable.Column
+Table.Column = Column
 Table.ColumnGroup = AntTable.ColumnGroup
 
 export default Table

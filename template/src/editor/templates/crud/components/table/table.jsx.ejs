@@ -1,51 +1,78 @@
 <%
   const tableModelNamespace = name + 'Table'
+  const operatorModelNamespace = name + 'Operator'
   const hasOperator = data.table.operators.length > 0
   const operatorMap = data.table.operators.reduce((_, operator) => ({
     ..._,
     [operator]: true,
   }), {})
+  const hasPagination = data.table.pagination
 -%>
 
-import React, { useMemo, useCallback } from 'react'
+import React, {
+  useMemo,
+  <% if (hasOperator) { -%>
+  useCallback,
+  <% } -%>
+} from 'react'
 import { useModel } from 'steer'
-<% if (hasOperator) { -%>
+import { useDidMount, useWillUnmount } from 'beautiful-react-hooks'
 import { dispatcher } from '@opcjs/zoro'
-<% } -%>
 import Table from '@/components/table/table'
+<% if (hasOperator) { -%>
 import Actions from '@/components/actions/actions'
-
+<% } -%>
 
 export default function () {
   const {
     dataSource,
+    <% if (hasPagination) { %>
+    pagination,
+    <% } %>
   } = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>)
+  const loading = useModel(({ loading }) => ({
+    query: loading.effect['<%= tableModelNamespace %>/query'] || false,
+  }))
 
   <% if (operatorMap.edit) { -%>
   const handleEdit = useCallback(() => {
-    dispatcher.<%= tableModelNamespace %>.edit()
+    dispatcher.<%= operatorModelNamespace %>.edit()
   }, [])
   <% } -%>
 
   <% if (operatorMap.view) { -%>
   const handleView = useCallback(() => {
-    dispatcher.<%= tableModelNamespace %>.view()
+    dispatcher.<%= operatorModelNamespace %>.view()
   }, [])
   <% } -%>
 
   <% if (operatorMap.delete) { -%>
   const handleDelete = useCallback(() => {
-    dispatcher.<%= tableModelNamespace %>.delete()
+    dispatcher.<%= operatorModelNamespace %>.delete()
   }, [])
   <% } -%>
 
   <% if (hasOperator) { -%>
   const handleRow = useCallback((record) => {
     return {
-      onClick: () => dispatcher.<%= tableModelNamespace %>.update({ activeRow: record })
+      onClick: () => dispatcher.<%= operatorModelNamespace %>.setActiveRow(record)
     }
   }, [])
   <% } -%>
+
+  <% if (hasPagination) { %>
+  const handleChange = useCallback((pagination) => {
+    dispatcher.<%= tableModelNamespace %>.change({ pagination })
+  }, [])
+  <% } %>
+
+  useDidMount(() => {
+    dispatcher.<%= tableModelNamespace %>.query()
+  })
+
+  useWillUnmount(() => {
+    dispatcher.<%= tableModelNamespace %>.clear()
+  })
 
   <% if (hasOperator) { -%>
   const renderActions = useCallback(() => (
@@ -76,21 +103,26 @@ export default function () {
   return useMemo(() => {
     return (
       <Table
-        dataSource={dataSource}
         rowKey="id"
+        loading={loading.query}
+        dataSource={dataSource}
         <% if (hasOperator) { -%>
         onRow={handleRow}
         <% } -%>
+        <% if (hasPagination) { %>
+        pagination={pagination}
+        onChange={handleChange}
+        <% } %>
       >
-        <Table.Column title="姓名" dataIndex="name" />
+        <Table.Column title="姓名" width={200} dataIndex="name" fixed="left" />
         <Table.Column title="年龄" dataIndex="age" />
         <Table.Column title="性别" dataIndex="gender" />
-        <Table.Column title="生日" dataIndex="birthday" />
-        <Table.Column title="家庭住址" dataIndex="address" />
+        <Table.Column title="生日" width={300} dataIndex="birthday" />
+        <Table.Column title="家庭住址" width={300} dataIndex="address" ellipsis />
         <% if (hasOperator) { -%>
         <Table.Column
           title="操作"
-          align="right"
+          fixed="right"
           width={130}
           dataIndex="action"
           render={renderActions}
@@ -99,10 +131,15 @@ export default function () {
       </Table>
     )
   }, [
+    loading,
     dataSource,
     <% if (hasOperator) { -%>
     renderActions,
     handleRow,
     <% } -%>
+    <% if (hasPagination) { %>
+    handleChange,
+    pagination,
+    <% } %>
   ])
 }

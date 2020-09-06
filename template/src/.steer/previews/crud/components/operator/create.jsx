@@ -1,0 +1,86 @@
+import React, { useMemo, useCallback, useRef } from 'react'
+import { useModel } from 'steer'
+import { dispatcher } from '@opcjs/zoro'
+import { Input, InputNumber, Select, DatePicker } from 'antd'
+import Modal from '@/components/modal/modal'
+import Form from '@/components/form/form'
+
+export default function () {
+  const form = useRef(null)
+  const { create } = useModel(({ crudOperator }) => crudOperator)
+  const loading = useModel(({ loading }) => ({
+    createSubmit: loading.effect['crudOperator/createSubmit'] || false,
+  }))
+
+  const genderOptions = useMemo(
+    () => [
+      { label: '男', value: 'man' },
+      { label: '女', value: 'women' },
+    ],
+    [],
+  )
+
+  const initialValues = useMemo(
+    () => ({
+      gender: 'man',
+    }),
+    [],
+  )
+
+  const handleCancel = useCallback(() => {
+    create.current.hide()
+  }, [create])
+
+  const handleOk = useCallback(() => {
+    form.current.submit()
+  }, [form])
+
+  const handleSubmit = useCallback((values) => {
+    dispatcher.crudOperator.createSubmit(values)
+  }, [])
+
+  return useMemo(() => {
+    return (
+      <Modal
+        ref={create}
+        title="创建"
+        confirmLoading={loading.createSubmit}
+        onCancel={handleCancel}
+        onOk={handleOk}
+      >
+        <Form
+          ref={form}
+          preserve
+          showSubmitButton={false}
+          initialValues={initialValues}
+          onSubmit={handleSubmit}
+        >
+          <Form.Item name="name" label="姓名" required>
+            <Input />
+          </Form.Item>
+          <Form.Item name="age" label="年龄">
+            <InputNumber precision={0} />
+          </Form.Item>
+          <Form.Item name="gender" label="性别">
+            <Select options={genderOptions} />
+          </Form.Item>
+          <Form.Item name="birthday" label="生日">
+            <DatePicker />
+          </Form.Item>
+          <Form.Item name="address" label="地址">
+            <Input.TextArea autoSize={{ minRows: 4, maxRows: 6 }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    )
+  }, [
+    genderOptions,
+    initialValues,
+    handleCancel,
+    handleOk,
+    handleSubmit,
+    create,
+    form,
+    loading,
+  ])
+}

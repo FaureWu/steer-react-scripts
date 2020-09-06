@@ -86,7 +86,9 @@ export function updateBreadCrumbs({ pathname, search }) {
   const query = qs.parse(search.replace('?', ''))
   const currentRoute = routes.find((item) => item.route === pathname)
   const route = {
-    title: decodeURIComponent(query.name || currentRoute.title || '无标题'),
+    title: decodeURIComponent(
+      query.name || (currentRoute && currentRoute.title) || '无标题',
+    ),
     route: `${pathname}${decodeURIComponent(search)}`,
     pathname,
   }

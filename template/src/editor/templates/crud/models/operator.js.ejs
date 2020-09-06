@@ -1,0 +1,122 @@
+<%
+  const tableModelNamespace = name + 'Table'
+  const hasOperator = data.table.operators.length > 0
+  const operatorMap = data.table.operators.reduce((_, operator) => ({
+    ..._,
+    [operator]: true,
+  }), {})
+  const hasPagination = data.table.pagination
+-%>
+<% if (hasOperator) { -%>
+import React from 'react'
+<% if (operatorMap.create || operatorMap.edit || operatorMap.delete) { -%>
+import { message } from 'antd'
+<% } -%>
+import {
+  <% if (operatorMap.view || operatorMap.edit) { -%>
+  crudDetail,
+  <% } -%>
+  <% if (operatorMap.create) { -%>
+  crudCreate,
+  <% } -%>
+  <% if (operatorMap.edit) { -%>
+  crudEdit,
+  <% } -%>
+  <% if (operatorMap.delete) { -%>
+  curdDelete,
+  <% } -%>
+} from '@/services/demo'
+
+const defaultState = {
+  activeRow: {},
+}
+
+export default {
+  namespace: '<%= name %>Operator',
+
+  state: {
+    <% if (operatorMap.create) { -%>
+    create: React.createRef(),
+    <% } -%>
+    <% if (operatorMap.edit) { -%>
+    edit: React.createRef(),
+    <% } -%>
+    <% if (operatorMap.view) { -%>
+    view: React.createRef(),
+    <% } -%>
+    ...defaultState
+  },
+
+  mixins: ['update'],
+
+  effects: {
+    <% if (operatorMap.create) { -%>
+    create(action, { select }) {
+      const { create } = select()
+      create.current.show()
+    },
+    async createSubmit({ payload }, { select, put }) {
+      const { create } = select()
+      await crudCreate(payload)
+      create.current.hide()
+      message.success('创建成功')
+      <% if (hasPagination) { -%>
+      put({ type: '<%= tableModelNamespace %>/resetPagination' })
+      <% } -%>
+      put({ type: '<%= tableModelNamespace %>/query' })
+    },
+    <% } -%>
+
+    <% if (operatorMap.edit) { -%>
+    async edit(action, { select, put }) {
+      const { edit, activeRow } = select()
+      edit.current.show()
+      const { data = {} } = await crudDetail(activeRow)
+      put({ type: 'update', payload: { activeRow: data } })
+    },
+    async editSubmit({ payload }, { select, put }) {
+      const { edit } = select()
+      await crudEdit(payload)
+      edit.current.hide()
+      message.success('编辑成功')
+      put({ type: '<%= tableModelNamespace %>/query' })
+    },
+    <% } -%>
+
+    <% if (operatorMap.view) { -%>
+    async view(action, { select, put }) {
+      const { view, activeRow } = select()
+      view.current.show()
+      const { data = {} } = await crudDetail(activeRow)
+      put({ type: 'update', payload: { activeRow: data } })
+    },
+    <% } -%>
+
+    <% if (operatorMap.delete) { -%>
+    async delete(action, { select, put }) {
+      const { activeRow } = select()
+      message.loading('删除中...', 0)
+      await curdDelete(activeRow)
+        .finally(() => message.destroy())
+      message.success('删除成功')
+      put({ type: '<%= tableModelNamespace %>/query' })
+    },
+    <% } -%>
+  },
+
+  reducers: {
+    setActiveRow({ payload }, state) {
+      return {
+        ...state,
+        activeRow: payload,
+      }
+    },
+    clear(action, state) {
+      return {
+        ...state,
+        ...defaultState,
+      }
+    },
+  }
+}
+<% } -%>

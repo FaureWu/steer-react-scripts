@@ -1,23 +1,52 @@
 {
   "title": "增删改查模版",
+  "entry": "index.jsx",
   "value": {
-    "filter": true,
     "table": {
       "pagination": true,
       "operators": ["create", "edit", "view", "delete"]
     },
-    "tree": true
-  },
-  "config": {
-    "tree": {
-      "type": "checkbox",
-      "defaultValue": false,
-      "label": "是否开启树形筛选"
+    "components": {
+      "tree": true,
+      "filter": true
     },
     "filter": {
-      "type": "checkbox",
-      "defaultValue": true,
-      "label": "是否开启筛选"
+      "allowReset": true,
+      "actions": true
+    }
+  },
+  "config": {
+    "components": {
+      "type": "group",
+      "label": "页面配置",
+      "config": {
+        "tree": {
+          "type": "checkbox",
+          "defaultValue": false,
+          "label": "是否开启树形筛选"
+        },
+        "filter": {
+          "type": "checkbox",
+          "defaultValue": true,
+          "label": "是否开启筛选栏"
+        }
+      }
+    },
+    "filter": {
+      "type": "group",
+      "label": "筛选栏配置",
+      "config": {
+        "allowReset": {
+          "type": "checkbox",
+          "defaultValue": true,
+          "label": "是否可重置"
+        },
+        "actions": {
+          "type": "checkbox",
+          "defaultValue": false,
+          "label": "是否需要其他按钮"
+        }
+      }
     },
     "table": {
       "type": "group",
@@ -25,7 +54,7 @@
       "config": {
         "operators": {
           "type": "checkboxGroup",
-          "defaultValue": [],
+          "defaultValue": ["create", "edit", "view", "delete"],
           "label": "操作配置",
           "options": [{
             "label": "创建",

@@ -38,7 +38,9 @@ function Page({ children, className, transparent, animation = true }) {
         return (
           <div className={styles.container}>
             {siderEle}
-            <div className={styles.content}>{contentEle}</div>
+            <div className={classNames(styles.content, styles.auto)}>
+              {contentEle}
+            </div>
           </div>
         )
       }

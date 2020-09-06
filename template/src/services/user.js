@@ -139,7 +139,6 @@ export async function login({ userName, password, autoLogin = false }) {
   const { data = '' } = await request('/user/login', {
     method: 'POST',
     data: { userName, password },
-    ignoreAuth: true,
   })
   setToken(data)
 }

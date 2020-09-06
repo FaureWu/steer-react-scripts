@@ -46,17 +46,14 @@ function Editor() {
     setPreview(true)
     previewPage({
       template,
+      value: params,
     })
-      .then(() =>
-        window.open(
-          `${window.location.origin}#${process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE}/preview`,
-        ),
-      )
+      .then((url) => window.open(`${window.location.origin}/index#${url}`))
       .finally(() => {
         message.destroy()
         setPreview(false)
       })
-  }, [template])
+  }, [params, template])
 
   const handleCreate = useCallback(
     (values) => {
@@ -68,7 +65,10 @@ function Editor() {
       message.loading('页面生成中！', 0)
       setCreate(true)
       createPage({ template, path, value: params })
-        .then((url) => history.push(url))
+        .then((url) => {
+          debugger
+          history.push(url)
+        })
         .finally(() => {
           message.destroy()
           setCreate(false)
@@ -108,12 +108,7 @@ function Editor() {
             )}
             {current === 2 && (
               <Space>
-                <Button
-                  disabled
-                  type="link"
-                  onClick={handlePreview}
-                  loading={preview}
-                >
+                <Button type="link" onClick={handlePreview} loading={preview}>
                   预 览
                 </Button>
                 <Button type="primary" onClick={handleSubmit} loading={create}>

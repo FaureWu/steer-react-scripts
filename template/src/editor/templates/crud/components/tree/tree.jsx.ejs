@@ -1,0 +1,30 @@
+<%
+  const tableModelNamespace = name + 'Table'
+-%>
+<% if (data.components.tree) { -%>
+import React, { useMemo, useCallback } from 'react'
+import { useDidMount } from 'beautiful-react-hooks'
+import { dispatcher } from '@opcjs/zoro'
+import { useModel } from 'steer'
+import Tree from '@/components/tree/tree'
+
+export default function () {
+  const { treeData } = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>)
+  const loading = useModel(({ loading }) => ({
+    queryTree: loading.effect['<%= tableModelNamespace %>/queryTree'] || false,
+  }))
+
+  useDidMount(() => {
+    dispatcher.<%= tableModelNamespace %>.queryTree()
+  })
+
+  const handleSelect = useCallback((selectedKeys, { selectedNodes }) => {
+    const { children, ...node } = selectedNodes[0]
+    dispatcher.<%= tableModelNamespace %>.selectTree(node)
+  }, [])
+
+  return useMemo(() => {
+    return <Tree loading={loading.queryTree} treeData={treeData} onSelect={handleSelect} />
+  }, [loading, treeData, handleSelect])
+}
+<% } -%>

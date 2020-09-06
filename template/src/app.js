@@ -49,10 +49,16 @@ export function onRouteChange({ location }) {
   if (whiteLists.indexOf(pathname) !== -1) return
 
   const authCodes = getAuthCodes()
-  if (!authCodes[pathname]) {
+  if (process.env.REACT_APP_ENV !== 'mock' && !authCodes[pathname]) {
     history.push('/404')
     return
   }
+
+  if (
+    process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE &&
+    pathname.indexOf(process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE) === 0
+  )
+    return
 
   updateBreadCrumbs(location)
 }

@@ -1,17 +1,20 @@
 import React, {
   useMemo,
+  useState,
   useCallback,
   forwardRef,
   useImperativeHandle,
   useRef,
 } from 'react'
-import { Checkbox } from 'antd'
+import { Checkbox, Radio, Input, Select } from 'antd'
 import Form from '@/components/form/form'
+import { isUndefined } from '@/utils/tool'
 
 import styles from './param.less'
 
 function Param({ config, onSubmit }, ref) {
   const form = useRef(null)
+  const [params, setParams] = useState(null)
 
   const formatGroup = useCallback((group) => {
     const { initialValues, items } = Object.keys(group.config).reduce(
@@ -59,12 +62,27 @@ function Param({ config, onSubmit }, ref) {
     )
   }, [config, formatGroup])
 
-  const renderItems = useCallback((items, paths = []) => {
+  const currentParams = useMemo(() => {
+    if (params) return params
+
+    return initialValues
+  }, [initialValues, params])
+
+  const handleChange = useCallback((_, values) => {
+    setParams(values)
+  }, [])
+
+  const renderItems = useCallback((items, values = {}, paths = []) => {
     return items.map((item) => {
+      const { components = {} } = values
+
+      const value = components[item.name]
+      if (!isUndefined(value) && !value) return null
+
       if (item.type === 'group') {
         return (
           <Form.Group key={item.name} title={item.label}>
-            {renderItems(item.items, [item.name])}
+            {renderItems(item.items, undefined, [item.name])}
           </Form.Group>
         )
       }
@@ -74,6 +92,7 @@ function Param({ config, onSubmit }, ref) {
           <Form.Item
             key={item.name}
             name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
             valuePropName="checked"
           >
             <Checkbox>{item.label}</Checkbox>
@@ -86,9 +105,62 @@ function Param({ config, onSubmit }, ref) {
           <Form.Item
             key={item.name}
             name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
             label={item.label}
           >
             <Checkbox.Group options={item.options} />
+          </Form.Item>
+        )
+      }
+
+      if (item.type === 'radio') {
+        return (
+          <Form.Item
+            key={item.name}
+            name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
+            label={item.label}
+          >
+            <Radio.Group options={item.options} />
+          </Form.Item>
+        )
+      }
+
+      if (item.type === 'input') {
+        return (
+          <Form.Item
+            key={item.name}
+            name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
+            label={item.label}
+          >
+            <Input />
+          </Form.Item>
+        )
+      }
+
+      if (item.type === 'select') {
+        return (
+          <Form.Item
+            key={item.name}
+            name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
+            label={item.label}
+          >
+            <Select options={item.options} />
+          </Form.Item>
+        )
+      }
+
+      if (item.type === 'multiSelect') {
+        return (
+          <Form.Item
+            key={item.name}
+            name={paths.concat(item.name)}
+            labelAlign={item.label ? 'left' : undefined}
+            label={item.label}
+          >
+            <Select mode="multiple" options={item.options} />
           </Form.Item>
         )
       }
@@ -108,14 +180,15 @@ function Param({ config, onSubmit }, ref) {
           showSubmitButton={false}
           initialValues={initialValues}
           loading={!initialValues}
-          layout="vertical"
+          // layout="vertical"
           onSubmit={onSubmit}
+          onValuesChange={handleChange}
         >
-          {renderItems(items)}
+          {renderItems(items, currentParams)}
         </Form>
       </div>
     )
-  }, [initialValues, items, onSubmit, renderItems])
+  }, [currentParams, handleChange, initialValues, items, onSubmit, renderItems])
 }
 
 export default forwardRef(Param)

@@ -12,6 +12,8 @@ import { isArray } from '@/utils/tool'
 import { menus as menuData } from '@/config/menu'
 
 function getAuthMenus(menus = [], authCodes) {
+  if (process.env.REACT_APP_ENV === 'mock') return menus
+
   return menus.reduce((result, menu) => {
     if (isArray(menu.children)) {
       const authChildren = getAuthMenus(menu.children, authCodes)
