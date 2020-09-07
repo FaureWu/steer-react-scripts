@@ -80,7 +80,10 @@ function Editor() {
   return useMemo(() => {
     return (
       <Page>
-        <Page.Header>
+        <Page.Header
+          title="模版代码生成"
+          description="参数配置完成，可先行预览效果后生成模版"
+        >
           <Steps current={current} size="small">
             <Steps.Step title="选择模版" />
             <Steps.Step title="模版参数" />

@@ -1,3 +1,8 @@
+/**
+ * 本文件用于代码模版编辑器服务
+ * 请勿删除，否则编辑器功能将无法使用
+ */
+
 import faker from 'faker'
 
 function createUser() {

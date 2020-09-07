@@ -1,6 +1,6 @@
 import React from 'react'
 import { message } from 'antd'
-import { crudDetail, crudCreate, crudEdit, curdDelete } from '@/services/demo'
+import { crudDetail, crudCreate, crudEdit, curdDelete } from '@/editor/service'
 
 const defaultState = {
   activeRow: {},

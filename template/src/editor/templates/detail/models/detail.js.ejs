@@ -1,4 +1,4 @@
-import { crudDetail } from '@/services/demo'
+import { crudDetail } from '@/editor/service'
 
 const defaultState = {
   data: {},

@@ -1,5 +1,5 @@
 import React from 'react'
-import { crudQuery, crudTree } from '@/services/demo'
+import { crudQuery, crudTree } from '@/editor/service'
 
 const defaultState = {
   dataSource: [],

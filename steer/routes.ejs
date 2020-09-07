@@ -25,17 +25,6 @@ export default function Routes() {
   const params = useParams()
 
   useEffect(() => {
-    <% if (editor.enable) { -%>
-    const isEditor = matchPath(location.pathname, {
-      path: '<%= editor.route %>',
-      exact: true,
-    })
-    const isPreview = matchPath(location.pathname, {
-      path: '<%= editor.route %>/preview',
-      exact: true,
-    })
-    if (isEditor || isPreview) return;
-    <% } -%>
     onRouteChange({ history, location, params })
   }, [location, history, params])
 
