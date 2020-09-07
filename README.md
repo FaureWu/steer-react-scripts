@@ -7,7 +7,7 @@
 > 本文档仅简单介绍项目基本能力，更多细节及使用方式请查看[文档还在建设中]()
 
 <center>
-  <img width="200" src="https://github.com/FaureWu/steer-react-scripts/raw/master/images/login.png" style="margin: 0 10px 0 0" /><img width="200" style="margin: 0 10px 0 0" src="https://github.com/FaureWu/steer-react-scripts/raw/master/images/home.png" /><img width="200" src="https://github.com/FaureWu/steer-react-scripts/raw/master/images/editor.png" />
+  <img width="200" src="https://upload-images.jianshu.io/upload_images/12992535-4db9e18ade7d1012.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" style="margin: 0 10px 0 0" /><img width="200" style="margin: 0 10px 0 0" src="https://upload-images.jianshu.io/upload_images/12992535-cd9aaf4f82d75007.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" /><img width="200" src="https://upload-images.jianshu.io/upload_images/12992535-7e0bfced63b49d85.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" />
 </center>
 
 该项目基于[create-react-app](https://create-react-app.dev/docs/getting-started/)脚手架改造而来，为了满足中后台快速开发需求
@@ -31,11 +31,11 @@
 
 * 增删改查模版
 
-![增删改查模版](https://github.com/FaureWu/steer-react-scripts/raw/master/images/crud.png)
+![增删改查模版](https://upload-images.jianshu.io/upload_images/12992535-8496ef5044306a4d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 * 详情页模版
 
-![详情页模版](https://github.com/FaureWu/steer-react-scripts/raw/master/images/detail.png)
+![详情页模版](https://upload-images.jianshu.io/upload_images/12992535-2f88ad3dcd5b937f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 一套模版通过不同参数设置，可以生成不同页面能力，你可以通过编写/修改模版来达到更加强大智能的模版，对于模版及编辑器能力都是开发者可以自行修改的及编写的，基本上可以满足你所需要的场景
 
