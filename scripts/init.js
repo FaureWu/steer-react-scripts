@@ -172,19 +172,16 @@ module.exports = function (
 
   // Setup the script rules
   // TODO: deprecate 'scripts' key directly on templateJson
-  const templateScripts = templatePackage.scripts || templateJson.scripts || {}
-  appPackage.scripts = Object.assign(
-    {
-      'mock': 'cross-env REACT_APP_ENV=mock react-scripts start',
-      'dev': 'cross-env REACT_APP_ENV=dev react-scripts start',
-      'prod': 'cross-env REACT_APP_ENV=prod react-scripts start',
-      'build': 'cross-env REACT_APP_ENV=prod react-scripts build',
-      'build:dev': 'cross-env REACT_APP_ENV=dev react-scripts build',
-      'test': 'react-scripts test',
-      'analyze': 'react-scripts analyze',
-    },
-    templateScripts,
-  )
+  // const templateScripts = templatePackage.scripts || templateJson.scripts || {}
+  appPackage.scripts = {
+    'mock': 'cross-env REACT_APP_ENV=mock react-scripts start',
+    'dev': 'cross-env REACT_APP_ENV=dev react-scripts start',
+    'prod': 'cross-env REACT_APP_ENV=prod react-scripts start',
+    'build': 'cross-env REACT_APP_ENV=prod react-scripts build',
+    'build:dev': 'cross-env REACT_APP_ENV=dev react-scripts build',
+    'test': 'react-scripts test',
+    'analyze': 'react-scripts analyze',
+  }
 
   // Update scripts for Yarn users
   if (useYarn) {

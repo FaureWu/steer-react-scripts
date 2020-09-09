@@ -1,5 +1,6 @@
-/fixtures
+node_modules
+/images
 /template/node_modules
-/template/.steer
-/template/.steer-pro
+/template/src/.steer
+/template/src/.steer-pro
 /template/dist

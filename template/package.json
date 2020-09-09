@@ -13,6 +13,7 @@
     "beautiful-react-hooks": "^0",
     "classnames": "^2",
     "dayjs": "^1",
+    "faker": "^4",
     "qs": "^6",
     "react-redux": "^7",
     "react-router-dom": "^5",
@@ -20,7 +21,6 @@
     "reselect": "^4"
   },
   "devDependencies": {
-    "faker": "^4",
     "react": "^16",
     "react-dom": "^16",
     "source-map-explorer": "^2"
