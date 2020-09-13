@@ -6,11 +6,7 @@ import Table from '@/components/table/table'
 import Actions from '@/components/actions/actions'
 
 export default function () {
-  const {
-    dataSource,
-
-    pagination,
-  } = useModel(({ crudTable }) => crudTable)
+  const { dataSource, pagination } = useModel(({ crudTable }) => crudTable)
   const loading = useModel(({ loading }) => ({
     query: loading.effect['crudTable/query'] || false,
   }))

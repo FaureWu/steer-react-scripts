@@ -30,7 +30,11 @@ function Template({ onSelect = noop }) {
       template,
       value: template.value,
     })
-      .then((url) => window.open(`${window.location.origin}/index#${url}`))
+      .then((url) =>
+        window.open(
+          `${window.location.origin}${process.env.REACT_APP_OPEN_LAYOUT}#${url}`,
+        ),
+      )
       .finally(() => {
         message.destroy()
       })

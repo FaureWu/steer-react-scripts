@@ -1,9 +1,11 @@
 import React from 'react'
 
-import LIndex from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/layouts/index.jsx'
+import LHorizontal from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/layouts/horizontal.jsx'
+import LVertical from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/layouts/vertical.jsx'
 
 const LayoutComponents = {
-  index: LIndex,
+  horizontal: LHorizontal,
+  vertical: LVertical,
 }
 
 function getLayoutComponent() {

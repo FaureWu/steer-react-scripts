@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from 'react'
+import classNames from 'classnames'
 import { Dropdown, Menu, Avatar, Space, Badge } from 'antd'
 import { useModel } from 'steer'
 import { BellOutlined } from '@ant-design/icons'
@@ -6,7 +7,7 @@ import { dispatcher } from '@opcjs/zoro'
 
 import styles from './user.less'
 
-function User() {
+function User({ dark }) {
   const userInfo = useModel(({ user }) => user.userInfo)
   const handleSelectMenu = useCallback(({ key }) => {
     switch (key) {
@@ -45,16 +46,16 @@ function User() {
 
   return useMemo(() => {
     return (
-      <div className={styles.user}>
+      <div className={classNames(styles.user, { [styles.dark]: dark })}>
         <div className={styles.item}>
-          <Badge overflowCount={99}>
+          <Badge count={10} overflowCount={99}>
             <BellOutlined className={styles.icon} />
           </Badge>
         </div>
         {userEle}
       </div>
     )
-  }, [userEle])
+  }, [dark, userEle])
 }
 
 export default User

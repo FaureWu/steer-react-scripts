@@ -35,6 +35,7 @@
     "filter": {
       "type": "group",
       "label": "筛选栏配置",
+      "dependencies": ["components.filter"],
       "config": {
         "allowReset": {
           "type": "checkbox",

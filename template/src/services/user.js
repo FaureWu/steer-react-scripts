@@ -8,6 +8,7 @@ import {
   getSessionStorage,
   removeSessionStorage,
 } from '@/utils/tool'
+import { history } from 'steer'
 
 const REDIRECT_URL = '_REDIRECT_URL_'
 
@@ -110,7 +111,7 @@ export function redirectToLogin() {
   if (hashQueryString) hashString += `?${hashQueryString}`
 
   setLocalStorage(REDIRECT_URL, `${origin}${pathname}${search}${hashString}`)
-  window.location.href = `${origin}#/login`
+  history.switch('', '/login')
 }
 
 /**
@@ -123,8 +124,8 @@ export function loginToRedirect() {
 
   if (url) window.location.href = url
   else {
-    const { origin, pathname, search } = window.location
-    window.location.href = `${origin}${pathname}${search}`
+    const { pathname } = window.location
+    history.switch(pathname, '/')
   }
 }
 

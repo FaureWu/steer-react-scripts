@@ -5,7 +5,6 @@ import {
   useLocation,
   useHistory,
   useParams,
-  matchPath,
 } from 'react-router-dom'
 import { onRouteChange } from '@/app'
 
@@ -13,6 +12,9 @@ import PIndex from '/Volumes/Code/workspace/steer/steer-react-scripts/template/s
 import PLogin from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/login.jsx'
 import PEditorCrudIndex from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/editorCrudIndex.jsx'
 import PEditorDetailIndex from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/editorDetailIndex.jsx'
+import PComponentPage from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentPage.jsx'
+import PComponentTable from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentTable.jsx'
+import PComponentForm from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentForm.jsx'
 import PEditor from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/editor/index.jsx'
 import NotFound from '@/pages/404'
 
@@ -31,6 +33,9 @@ export default function Routes() {
       <Route exact path="/login" component={PLogin} />
       <Route exact path="/editor/crud" component={PEditorCrudIndex} />
       <Route exact path="/editor/detail" component={PEditorDetailIndex} />
+      <Route exact path="/component/page" component={PComponentPage} />
+      <Route exact path="/component/table" component={PComponentTable} />
+      <Route exact path="/component/form" component={PComponentForm} />
       <Route exact path="/editor" component={PEditor} />
       <Route path="*" component={NotFound} />
     </Switch>

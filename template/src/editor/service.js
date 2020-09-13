@@ -1,21 +1,40 @@
 import request from '@/utils/request'
 
-const apis = {
+const editorApis = {
   getTemplates: '/templates',
   createPreviewPage: '/preview',
   createPage: '/create',
 }
 
+const apis = {
+  query: '/crud/query',
+  create: '/crud/create',
+  edit: '/crud/edit',
+  delete: '/crud/delete',
+  detail: '/crud/detail',
+  tree: '/crud/tree',
+}
+
+const prefix = process.env.REACT_APP_ENV === 'mock' ? process.env.REACT_APP_API_PREFIX : '/mock'
+
+const editorService = Object.keys(editorApis).reduce(
+  (_, key) => ({
+    ..._,
+    [key]: `${window.location.origin}${prefix}${process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE}${editorApis[key]}`,
+  }),
+  {},
+)
+
 const service = Object.keys(apis).reduce(
   (_, key) => ({
     ..._,
-    [key]: `${window.location.origin}${process.env.REACT_APP_API_PREFIX}${process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE}${apis[key]}`,
+    [key]: `${window.location.origin}${prefix}${apis[key]}`
   }),
   {},
 )
 
 export async function getEditorTemplates() {
-  const { data = [] } = await request(service.getTemplates, {
+  const { data = [] } = await request(editorService.getTemplates, {
     method: 'GET',
   })
 
@@ -23,7 +42,7 @@ export async function getEditorTemplates() {
 }
 
 export async function previewPage({ template, value }) {
-  const { data } = await request(service.createPreviewPage, {
+  const { data } = await request(editorService.createPreviewPage, {
     method: 'POST',
     data: {
       template,
@@ -35,7 +54,7 @@ export async function previewPage({ template, value }) {
 }
 
 export async function createPage({ template, path, value }) {
-  const { data } = await request(service.createPage, {
+  const { data } = await request(editorService.createPage, {
     method: 'POST',
     data: { template, value, path },
   })
@@ -47,7 +66,7 @@ export async function createPage({ template, path, value }) {
  * 获取表格数据
  */
 export async function crudQuery(params) {
-  const response = await request('/crud/query', {
+  const response = await request(service.query, {
     method: 'GET',
     data: params,
   })
@@ -59,7 +78,7 @@ export async function crudQuery(params) {
  * 创建表格项
  */
 export async function crudCreate(params) {
-  const response = await request('/crud/create', {
+  const response = await request(service.create, {
     method: 'POST',
     data: params,
   })
@@ -71,7 +90,7 @@ export async function crudCreate(params) {
  * 编辑表格项
  */
 export async function crudEdit(params) {
-  const response = await request('/crud/edit', {
+  const response = await request(service.edit, {
     method: 'POST',
     data: params,
   })
@@ -83,7 +102,7 @@ export async function crudEdit(params) {
  * 删除表格项
  */
 export async function curdDelete(params) {
-  const response = await request('/crud/delete', {
+  const response = await request(service.delete, {
     method: 'DELETE',
     data: params,
   })
@@ -95,7 +114,7 @@ export async function curdDelete(params) {
  * 获取表格项详情
  */
 export async function crudDetail(params) {
-  const response = await request('/crud/detail', {
+  const response = await request(service.detail, {
     method: 'GET',
     data: params,
   })
@@ -107,7 +126,7 @@ export async function crudDetail(params) {
  * 获取表格筛选树
  */
 export async function crudTree(params) {
-  const response = await request('/crud/tree', {
+  const response = await request(service.tree, {
     method: 'GET',
     data: params,
   })

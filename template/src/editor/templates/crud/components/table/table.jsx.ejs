@@ -26,9 +26,9 @@ import Actions from '@/components/actions/actions'
 export default function () {
   const {
     dataSource,
-    <% if (hasPagination) { %>
+    <% if (hasPagination) { -%>
     pagination,
-    <% } %>
+    <% } -%>
   } = useModel(({ <%= tableModelNamespace %> }) => <%= tableModelNamespace %>)
   const loading = useModel(({ loading }) => ({
     query: loading.effect['<%= tableModelNamespace %>/query'] || false,
@@ -60,11 +60,11 @@ export default function () {
   }, [])
   <% } -%>
 
-  <% if (hasPagination) { %>
+  <% if (hasPagination) { -%>
   const handleChange = useCallback((pagination) => {
     dispatcher.<%= tableModelNamespace %>.change({ pagination })
   }, [])
-  <% } %>
+  <% } -%>
 
   useDidMount(() => {
     dispatcher.<%= tableModelNamespace %>.query()
@@ -109,10 +109,10 @@ export default function () {
         <% if (hasOperator) { -%>
         onRow={handleRow}
         <% } -%>
-        <% if (hasPagination) { %>
+        <% if (hasPagination) { -%>
         pagination={pagination}
         onChange={handleChange}
-        <% } %>
+        <% } -%>
       >
         <Table.Column title="姓名" width={200} dataIndex="name" fixed="left" />
         <Table.Column title="年龄" dataIndex="age" />
@@ -137,9 +137,9 @@ export default function () {
     renderActions,
     handleRow,
     <% } -%>
-    <% if (hasPagination) { %>
+    <% if (hasPagination) { -%>
     handleChange,
     pagination,
-    <% } %>
+    <% } -%>
   ])
 }

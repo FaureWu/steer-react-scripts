@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { ConfigProvider } from 'antd'
+import qs from 'qs'
 import locale from 'antd/es/locale/<%= process.env.REACT_APP_LOCALE %>'
 import * as serviceWorker from '@/serviceWorker'
 import { render } from '@/app'
 import { useSelector, shallowEqual } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import './dayjs'
 import App, { app, store, history } from './app'
 
@@ -26,4 +28,21 @@ function useModel(selector) {
   return useSelector(selector, shallowEqual)
 }
 
-export { app, store, history, useModel }
+function useQuery() {
+  const [query, setQuery] = useState({})
+  const location = useLocation()
+
+  useEffect(() => {
+    setQuery(qs.parse(location.search.replace('?', '')))
+  }, [location])
+
+  return query
+}
+
+history.switch = function (layout, route) {
+  const { origin } = window.location
+  const layoutPath = layout ? `/${layout}` : ''
+  window.location.href = `${origin}${layoutPath}#${route}`
+}
+
+export { app, store, history, useModel, useQuery }

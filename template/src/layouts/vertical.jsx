@@ -9,9 +9,9 @@ import Menu from './menu/menu'
 import User from './user/user'
 import BreadCrumbs from './breadCrumbs/breadCrumbs'
 
-import styles from './index.less'
+import styles from './vertical.less'
 
-function Index({ children }) {
+function Vertical({ children }) {
   const [collapsed, setCollapsed] = useState(false)
   const hasBreadCrumb = useModel(({ user }) => user.breadCrumbs.length > 0)
 
@@ -58,4 +58,4 @@ function Index({ children }) {
   }, [children, collapsed, handleToggleCollapse, hasBreadCrumb])
 }
 
-export default Index
+export default Vertical

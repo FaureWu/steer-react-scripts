@@ -4,3 +4,5 @@ node_modules
 /template/src/.steer
 /template/src/.steer-pro
 /template/dist
+/docs
+/book

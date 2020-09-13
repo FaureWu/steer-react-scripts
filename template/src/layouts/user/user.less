@@ -1,7 +1,21 @@
 .user {
   display: flex;
   flex-direction: row;
+  flex-shrink: 0;
   padding: 0 @padding-md;
+
+  &.dark {
+    color: white;
+
+    .item:hover {
+      background: @primary-color;
+
+      .avatar {
+        background: white;
+        color: @primary-color;
+      }
+    }
+  }
 }
 
 .avatar {

@@ -3,11 +3,11 @@ import { Menu as AntMenu } from 'antd'
 import { useHistory } from 'react-router-dom'
 import { useModel } from 'steer'
 import { isArray } from '@/utils/tool'
-import { HomeOutlined, ContainerOutlined } from '@ant-design/icons'
+import { HomeOutlined, AppstoreOutlined } from '@ant-design/icons'
 
 const MENU_ICONS = {
   HomeOutlined: <HomeOutlined />,
-  ContainerOutlined: <ContainerOutlined />,
+  AppstoreOutlined: <AppstoreOutlined />,
 }
 
 function Menu(props) {

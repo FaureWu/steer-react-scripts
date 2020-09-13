@@ -48,7 +48,11 @@ function Editor() {
       template,
       value: params,
     })
-      .then((url) => window.open(`${window.location.origin}/index#${url}`))
+      .then((url) =>
+        window.open(
+          `${window.location.origin}${process.env.REACT_APP_OPEN_LAYOUT}#${url}`,
+        ),
+      )
       .finally(() => {
         message.destroy()
         setPreview(false)
@@ -66,7 +70,6 @@ function Editor() {
       setCreate(true)
       createPage({ template, path, value: params })
         .then((url) => {
-          debugger
           history.push(url)
         })
         .finally(() => {

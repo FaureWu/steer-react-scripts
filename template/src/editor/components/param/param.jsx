@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { Checkbox, Radio, Input, Select } from 'antd'
 import Form from '@/components/form/form'
-import { isUndefined } from '@/utils/tool'
+import { isString, isObject, isArray } from '@/utils/tool'
 
 import styles from './param.less'
 
@@ -68,106 +68,136 @@ function Param({ config, onSubmit }, ref) {
     return initialValues
   }, [initialValues, params])
 
+  const isShow = useCallback(
+    (item) => {
+      if (!isArray(item.dependencies) || item.dependencies.length <= 0)
+        return true
+
+      return item.dependencies.every((dependency) => {
+        if (!isString(dependency) || !dependency) return true
+
+        const paths = dependency.split('.')
+
+        let values = currentParams
+
+        return paths.every((path) => {
+          if (isObject(values) && values[path]) {
+            values = values[path]
+            return true
+          }
+
+          if (isArray(values) && values.indexOf(path) !== -1) {
+            values = values[path]
+            return true
+          }
+
+          return false
+        })
+      })
+    },
+    [currentParams],
+  )
+
   const handleChange = useCallback((_, values) => {
     setParams(values)
   }, [])
 
-  const renderItems = useCallback((items, values = {}, paths = []) => {
-    return items.map((item) => {
-      const { components = {} } = values
+  const renderItems = useCallback(
+    (items, values = {}, paths = []) => {
+      return items.map((item) => {
+        if (!isShow(item)) return null
 
-      const value = components[item.name]
-      if (!isUndefined(value) && !value) return null
+        if (item.type === 'group') {
+          return (
+            <Form.Group key={item.name} title={item.label}>
+              {renderItems(item.items, undefined, [item.name])}
+            </Form.Group>
+          )
+        }
 
-      if (item.type === 'group') {
-        return (
-          <Form.Group key={item.name} title={item.label}>
-            {renderItems(item.items, undefined, [item.name])}
-          </Form.Group>
-        )
-      }
+        if (item.type === 'checkbox') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              valuePropName="checked"
+            >
+              <Checkbox>{item.label}</Checkbox>
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'checkbox') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            valuePropName="checked"
-          >
-            <Checkbox>{item.label}</Checkbox>
-          </Form.Item>
-        )
-      }
+        if (item.type === 'checkboxGroup') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              label={item.label}
+            >
+              <Checkbox.Group options={item.options} />
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'checkboxGroup') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            label={item.label}
-          >
-            <Checkbox.Group options={item.options} />
-          </Form.Item>
-        )
-      }
+        if (item.type === 'radio') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              label={item.label}
+            >
+              <Radio.Group options={item.options} />
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'radio') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            label={item.label}
-          >
-            <Radio.Group options={item.options} />
-          </Form.Item>
-        )
-      }
+        if (item.type === 'input') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              label={item.label}
+            >
+              <Input />
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'input') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            label={item.label}
-          >
-            <Input />
-          </Form.Item>
-        )
-      }
+        if (item.type === 'select') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              label={item.label}
+            >
+              <Select options={item.options} />
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'select') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            label={item.label}
-          >
-            <Select options={item.options} />
-          </Form.Item>
-        )
-      }
+        if (item.type === 'multiSelect') {
+          return (
+            <Form.Item
+              key={item.name}
+              name={paths.concat(item.name)}
+              labelAlign={item.label ? 'left' : undefined}
+              label={item.label}
+            >
+              <Select mode="multiple" options={item.options} />
+            </Form.Item>
+          )
+        }
 
-      if (item.type === 'multiSelect') {
-        return (
-          <Form.Item
-            key={item.name}
-            name={paths.concat(item.name)}
-            labelAlign={item.label ? 'left' : undefined}
-            label={item.label}
-          >
-            <Select mode="multiple" options={item.options} />
-          </Form.Item>
-        )
-      }
-
-      return null
-    })
-  }, [])
+        return null
+      })
+    },
+    [isShow],
+  )
 
   useImperativeHandle(ref, () => form.current)
 
@@ -180,7 +210,6 @@ function Param({ config, onSubmit }, ref) {
           showSubmitButton={false}
           initialValues={initialValues}
           loading={!initialValues}
-          // layout="vertical"
           onSubmit={onSubmit}
           onValuesChange={handleChange}
         >
