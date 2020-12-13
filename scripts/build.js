@@ -43,7 +43,7 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions')
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter')
 const printBuildError = require('react-dev-utils/printBuildError')
-const steer = require('./steer')
+const steer = require('./steer/index')
 
 steer.run()
 

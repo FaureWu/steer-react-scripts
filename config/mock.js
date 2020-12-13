@@ -5,7 +5,7 @@ const chokidar = require('chokidar')
 const fs = require('fs')
 const path = require('path')
 const bodyParser = require('body-parser')
-const editor = require('../scripts/editor')
+const editor = require('../scripts/steer/editor')
 
 const isInteractive = process.stdout.isTTY
 const delayTime = parseInt(process.env.DELAY_TIME) || 0

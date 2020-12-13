@@ -38,16 +38,12 @@ const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier')
 const postcssNormalize = require('postcss-normalize')
 const { getThemeVariables } = require('antd/dist/theme')
 const lessToJs = require('less-vars-to-js')
+const steerPaths = require('../scripts/steer/paths')
 
 const appPackageJson = require(paths.appPackageJson)
 
 const less = fs.readFileSync(paths.themeLess, 'utf8')
 const antdTheme = lessToJs(less, { resolveVariables: true, stripPrefix: false })
-
-let steerTargetPath = path.resolve(process.cwd(), 'src/.steer')
-if (process.env.NODE_ENV === 'production') {
-  steerTargetPath = path.resolve(process.cwd(), 'src/.steer-pro')
-}
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false'
@@ -326,7 +322,7 @@ module.exports = function (webpackEnv) {
         ...(modules.webpackAliases || {}),
         '@': paths.appSrc,
         'moment': 'dayjs',
-        'steer': path.resolve(steerTargetPath, './index.js'),
+        'steer': path.resolve(steerPaths.outputPath, './index.js'),
       },
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding

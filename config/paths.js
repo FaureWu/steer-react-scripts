@@ -11,6 +11,7 @@
 const path = require('path')
 const fs = require('fs')
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath')
+const steerPaths = require('../scripts/steer/paths')
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebook/create-react-app/issues/637
@@ -56,11 +57,6 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`)
 }
 
-let steerPath = 'src/.steer/index'
-if (process.env.NODE_ENV === 'production') {
-  steerPath = 'src/.steer-pro/index'
-}
-
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
@@ -68,7 +64,7 @@ module.exports = {
   appBuild: resolveApp('dist'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
-  appIndexJs: resolveModule(resolveApp, steerPath),
+  appIndexJs: path.resolve(steerPaths.outputPath, 'index.js'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -93,7 +89,7 @@ module.exports = {
   appBuild: resolveApp('dist'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
-  appIndexJs: resolveModule(resolveApp, steerPath),
+  appIndexJs: path.resolve(steerPaths.outputPath, 'index.js'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -131,7 +127,7 @@ if (
     appBuild: resolveOwn('../../dist'),
     appPublic: resolveOwn(`${templatePath}/public`),
     appHtml: resolveOwn(`${templatePath}/public/index.html`),
-    appIndexJs: resolveModule(resolveOwn, steerPath),
+    appIndexJs: path.resolve(steerPaths.outputPath, 'index.js'),
     appPackageJson: resolveOwn('package.json'),
     appSrc: resolveOwn(`${templatePath}/src`),
     appTsConfig: resolveOwn(`${templatePath}/tsconfig.json`),

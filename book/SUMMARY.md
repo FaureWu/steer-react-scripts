@@ -4,7 +4,7 @@
 
 * [安装](INSTALL.md)
 
-* [开发](DELELOPMENT/README.md)
+* [开发](DEVELOPMENT/README.md)
 
   * [快速开始](DEVELOPMENT/GUIDE.md)
   * [动态布局(Layout)](DEVELOPMENT/LAYOUT.md)

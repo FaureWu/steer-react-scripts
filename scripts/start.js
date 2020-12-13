@@ -48,11 +48,11 @@ const openBrowser = require('react-dev-utils/openBrowser')
 const paths = require('../config/paths')
 const configFactory = require('../config/webpack.config')
 const createDevServerConfig = require('../config/webpackDevServer.config')
-const steer = require('./steer')
+const steer = require('./steer/index')
+const runtime = require('./steer/runtime')
 const log = require('./utils/log')
 
-steer.run()
-const closeSteerWatch = steer.watch()
+const closeSteerWatch = steer.run()
 
 const useYarn = fs.existsSync(paths.yarnLockFile)
 const isInteractive = process.stdout.isTTY
@@ -139,8 +139,8 @@ checkBrowsers(paths.appPath, isInteractive)
       }
 
       console.log('Existing routing layout:\n')
-      steer.getRuntimeCaches().layouts.forEach((layout) => {
-        console.log(`${urls.localUrlForBrowser}/${layout.layoutName}`)
+      runtime.getData().layouts.forEach((layout) => {
+        console.log(`${urls.localUrlForBrowser}/${layout.name}`)
       })
       console.log()
       console.log('You can see README.md for more information\n')

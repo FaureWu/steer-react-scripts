@@ -1,12 +1,12 @@
 import React from 'react'
 
 <% layouts.forEach(function(layout) { -%>
-  import <%= layout.componentName %> from '<%= layout.targetPath %>'
+  import <%= layout.componentName %> from '<%= layout.outputPath %>'
 <% }) -%>
 
 const LayoutComponents = {
   <% layouts.forEach(function(layout) { -%>
-  <%= layout.layoutName %>: <%= layout.componentName %>,
+  <%= layout.name %>: <%= layout.componentName %>,
   <% }) %>
 }
 
