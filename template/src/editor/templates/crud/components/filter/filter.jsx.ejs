@@ -14,7 +14,7 @@ import { Input, DatePicker, Select } from 'antd'
 import { useModel } from 'steer'
 import { dispatcher } from '@opcjs/zoro'
 import Filter from '@/components/filter/filter'
-<% if (operatorMap.create) { -%>
+<% if (operatorMap.create || data.filter.actions) { -%>
 import Actions from '@/components/actions/actions'
 <% } -%>
 
@@ -52,7 +52,9 @@ export default function () {
         <% if (operatorMap.create || data.filter.actions) { -%>
         actions={
           <Actions>
+            <% if (operatorMap.create) { -%>
             <Actions.Action onClick={handleCreate}>创建</Actions.Action>
+            <% } -%>
             <% if (data.filter.actions) { -%>
             <Actions.Action>按钮</Actions.Action>
             <% } -%>

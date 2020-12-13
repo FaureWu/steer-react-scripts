@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react'
 import { Result } from 'antd'
-import { useModel, useQuery } from 'steer'
+import { useModel } from 'steer'
 import { BulbOutlined } from '@ant-design/icons'
 import Page from '@/components/page/page'
 
 function Index() {
   const { userInfo } = useModel(({ user }) => user)
-  const params = useQuery()
-  console.log(params)
 
   return useMemo(() => {
     return (

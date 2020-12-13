@@ -10,15 +10,6 @@ import { useLocation } from 'react-router-dom'
 import './dayjs'
 import App, { app, store, history } from './app'
 
-render(() => {
-  ReactDOM.render(
-    <ConfigProvider locale={locale}>
-      <App />
-    </ConfigProvider>,
-    document.getElementById(process.env.REACT_APP_ROOT_ELEMENT_ID),
-  )
-})
-
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
@@ -46,3 +37,12 @@ history.switch = function (layout, route) {
 }
 
 export { app, store, history, useModel, useQuery }
+
+render(() => {
+  ReactDOM.render(
+    <ConfigProvider locale={locale}>
+      <App />
+    </ConfigProvider>,
+    document.getElementById(process.env.REACT_APP_ROOT_ELEMENT_ID),
+  )
+})
