@@ -1,7 +1,7 @@
 import React from 'react'
 
 <% layouts.forEach(function(layout) { -%>
-  import <%= layout.componentName %> from '<%= layout.outputPath %>'
+  import <%= layout.componentName %> from '<%= layout.outputAliasPath %>'
 <% }) -%>
 
 const LayoutComponents = {

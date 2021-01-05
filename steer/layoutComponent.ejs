@@ -1,5 +1,7 @@
 import { lazy } from 'react'
 
 export default lazy(() => {
-  return import(/* webpackChunkName: "layout~<%= name %>" */ '<%= entryPath %>')
+  return import(
+    /* webpackChunkName: "layout~<%= name %>" */ '<%= entryAliasPath %>'
+  )
 })

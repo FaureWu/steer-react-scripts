@@ -9,10 +9,10 @@ import {
 import { onRouteChange } from '@/app'
 
 <% pages.forEach(function(page) { -%>
-import <%= page.componentName %> from '<%= page.outputPath %>'
+import <%= page.componentName %> from '<%= page.outputAliasPath %>'
 <% }) -%>
 <% if (editor.enable) { -%>
-import <%= editor.componentName %> from '<%= editor.entryPath %>'
+import <%= editor.componentName %> from '<%= editor.entryAliasPath %>'
 <% } -%>
 import NotFound from '@/pages/404'
 

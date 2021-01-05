@@ -15,6 +15,7 @@ const {
   eachFiles,
   formatCode,
   getSectionsWithoutLastedNamedIndex,
+  getWebpackAliasPath,
 } = require('./tools')
 const runtime = require('./runtime')
 const { getPageNameByRoute, getPageRoute, getPreviewPageConfig, createPage: createPageEntry } = require('./page')
@@ -27,6 +28,7 @@ const config = {
     process.env.NODE_ENV === 'development' &&
     process.env.REACT_APP_EDITOR === 'true',
   entryPath: paths.editorPath.entryPath,
+  entryAliasPath: getWebpackAliasPath(paths.editorPath.entryPath),
   componentName: 'PEditor',
   route: process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE,
 }

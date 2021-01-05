@@ -2,7 +2,7 @@ const chokidar = require('chokidar')
 const chalk = require('react-dev-utils/chalk')
 
 const paths = require('./paths')
-const { isNotScript, isInclude, isEmptyFile, removeFile, isFileInPath } = require('./tools')
+const { isNotScript, isInclude, isEmptyFile, removeFile, isFileInPath, getWebpackAliasPath } = require('./tools')
 const { compose } = require('./functor')
 const {
   isPage,
@@ -43,7 +43,7 @@ function pageChange(params) {
 function isPageModelExist(modelFile, pageConfigs) {
   return pageConfigs.some((pageConfig) => {
     return pageConfig.models.some(
-      (pageModelFile) => modelFile === pageModelFile,
+      (model) => modelFile === model.path,
     )
   })
 }
@@ -62,7 +62,7 @@ function pageModelChange(params) {
 
 function globalModelChange(params) {
   const { file, runtime } = params
-  if (isInclude(file, runtime.getData().models)) return
+  if (runtime.getData().models.some(model => model.path === file)) return
 
   runtime.addModel(file)
   createApp(runtime.getData(), editor.config)
@@ -70,7 +70,7 @@ function globalModelChange(params) {
 
 function globalPluginChange(params) {
   const { file, runtime } = params
-  if (isInclude(file, runtime.getData().plugins)) return
+  if (runtime.getData().plugins.some(plugin => plugin.path === file)) return
 
   runtime.addPlugin(file)
   createApp(runtime.getData(), editor.config)
@@ -142,7 +142,7 @@ function pageRemove(params) {
 
 function removePagesModel(modelFile, pages) {
   return pages.map(page => {
-    const newModels = page.models.filter(file => file !== modelFile)
+    const newModels = page.models.filter(model => model.path !== modelFile)
     return {
       ...page,
       models: newModels,

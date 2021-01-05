@@ -2,9 +2,11 @@ const fs = require('fs')
 const path = require('path')
 const shell = require('shelljs')
 const prettier = require('prettier')
+const os = require('os')
 
 const condition = require('./condition')
 const { compose } = require('./functor')
+const paths = require('./paths')
 
 function isDirectory(file) {
   return fs.statSync(file).isDirectory()
@@ -67,7 +69,7 @@ function eachFiles(dirPath, fn) {
 }
 
 function formatFilePath(filePath) {
-  if (filePath.indexOf(path.sep) === 0) return filePath
+  if (path.isAbsolute(filePath)) return filePath
 
   return `${path.sep}${filePath}`
 }
@@ -75,7 +77,8 @@ function formatFilePath(filePath) {
 function writeFile(filePath, content) {
   const fileParts = filePath.split(path.sep).filter(item => item)
 
-  for (let i = 1; i < fileParts.length; i++) {
+  let i = os.type() === 'Windows_NT' ? 2 : 1
+  for (; i < fileParts.length; i++) {
     const dir = formatFilePath(fileParts.slice(0, i).join(path.sep))
     if (isFileExist(dir)) continue
     createPath(dir)
@@ -211,6 +214,10 @@ function assert(check, message) {
   }
 }
 
+function getWebpackAliasPath(filePath) {
+  return '@/' + filePath.replace(paths.entryPath, '').split(path.sep).filter(item => item).join('/')
+}
+
 module.exports = {
   readScripts,
   isFileInPath,
@@ -222,6 +229,7 @@ module.exports = {
   readFiles,
   readFilesShadow,
   readDirsShadow,
+  getWebpackAliasPath,
   isScript,
   isString,
   isFunction,

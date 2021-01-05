@@ -17,6 +17,7 @@ const {
   writeFile,
   formatCode,
   isFileInPath,
+  getWebpackAliasPath,
 } = require('./tools')
 const condition = require('./condition')
 const { compose } = require('./functor')
@@ -93,7 +94,7 @@ function getPageName(pageFile) {
 
 function getPreviewPageName(pageFile) {
   return transLineDownToHump(
-    `${process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE.split('/')
+    `${process.env.REACT_APP_TEMPLATE_EDITOR_ROUTE.split(path.sep)
       .filter((item) => item)
       .join('_')}_${compose(getPreviewPageSections, joinLineDown)(pageFile)}`,
   )
@@ -153,11 +154,17 @@ function getPageModels(pageFile) {
 function getPageConfig(pageFile) {
   const pageName = getPageName(pageFile)
 
+  const outputPath = getPageOutputPath(pageFile)
   return {
     name: pageName,
     entryPath: pageFile,
-    outputPath: getPageOutputPath(pageFile),
-    models: getPageModels(pageFile),
+    outputPath,
+    entryAliasPath: getWebpackAliasPath(pageFile),
+    outputAliasPath: getWebpackAliasPath(outputPath),
+    models: getPageModels(pageFile).map(modelFile => ({
+      path: modelFile,
+      aliasPath: getWebpackAliasPath(modelFile),
+    })),
     componentName: getPageComponentName(pageName),
     route: getPageRoute(pageFile),
   }
@@ -165,13 +172,18 @@ function getPageConfig(pageFile) {
 
 function getPreviewPageConfig(pageFile) {
   const pageName = getPreviewPageName(pageFile)
-  console.log(pageName)
 
+  const outputPath = getPreviewPageOutputPath(pageFile)
   return {
     name: pageName,
     entryPath: pageFile,
-    outputPath: getPreviewPageOutputPath(pageFile),
-    models: getPageModels(pageFile),
+    outputPath,
+    entryAliasPath: getWebpackAliasPath(pageFile),
+    outputAliasPath: getWebpackAliasPath(outputPath),
+    models: getPageModels(pageFile).map(modelFile => ({
+      path: modelFile,
+      aliasPath: getWebpackAliasPath(modelFile),
+    })),
     componentName: getPageComponentName(pageName),
     route: getPreviewPageRoute(pageFile),
   }

@@ -18,13 +18,13 @@ import '@/app.less'
 const app = zoro(config)
 <% if (models.length) { -%>
   <% models.forEach(function(model) { -%>
-    app.model(require('<%= model %>').default)
+    app.model(require('<%= model.aliasPath %>').default)
   <% }) -%>
 <% } -%>
 app.use(createLoading())
 <% if (plugins.length) { -%>
   <% plugins.forEach(function(plugin) { -%>
-    app.use(require('<%= plugin %>').default)
+    app.use(require('<%= plugin.aliasPath %>').default)
   <% }) -%>
 <% } -%>
 const store = app.start()

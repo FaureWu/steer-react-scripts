@@ -8,12 +8,12 @@ import {
 } from 'react-router-dom'
 import { onRouteChange } from '@/app'
 
-import PComponentForm from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentForm.jsx'
-import PComponentPage from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentPage.jsx'
-import PComponentTable from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/componentTable.jsx'
-import PIndex from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/index.jsx'
-import PLogin from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/pages/login.jsx'
-import PEditor from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/editor/index.jsx'
+import PComponentForm from '@/.steer/pages/componentForm.jsx'
+import PComponentPage from '@/.steer/pages/componentPage.jsx'
+import PComponentTable from '@/.steer/pages/componentTable.jsx'
+import PIndex from '@/.steer/pages/index.jsx'
+import PLogin from '@/.steer/pages/login.jsx'
+import PEditor from '@/editor/index.jsx'
 import NotFound from '@/pages/404'
 
 export default function Routes() {

@@ -6,9 +6,9 @@ import { app } from 'steer'
 export default lazy(() => {
   <% if (models.length) { -%>
     <% models.forEach(function(model) { -%>
-      app.model__quiet(require('<%= model %>').default)
+      app.model__quiet(require('<%= model.aliasPath %>').default)
     <% }) -%>
   <% } -%>
 
-  return import(/* webpackChunkName: "page~<%= name %>" */'<%= entryPath %>')
+  return import(/* webpackChunkName: "page~<%= name %>" */'<%= entryAliasPath %>')
 })

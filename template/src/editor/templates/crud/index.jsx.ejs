@@ -49,7 +49,7 @@ export default function () {
 
   return useMemo(() => {
     return (
-      <Page>
+      <Page title="<% data.title %>">
         <% if (hasPageHeader) { -%>
         <Page.Header
           actions={

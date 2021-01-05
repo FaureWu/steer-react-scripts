@@ -10,6 +10,7 @@ const {
   joinLineDown,
   isFileInPath,
   writeFile,
+  getWebpackAliasPath,
 } = require('./tools')
 const { compose } = require('./functor')
 const paths = require('./paths')
@@ -37,10 +38,13 @@ function getLayoutComponentName(layoutName) {
 function getLayoutConfig(layoutFile) {
   const layoutName = getLayoutName(layoutFile)
 
+  const outputPath = getLayoutOutputPath(layoutFile)
   return {
     name: layoutName,
     entryPath: layoutFile,
-    outputPath: getLayoutOutputPath(layoutFile),
+    outputPath,
+    entryAliasPath: getWebpackAliasPath(layoutFile),
+    outputAliasPath: getWebpackAliasPath(outputPath),
     componentName: getLayoutComponentName(layoutName),
   }
 }

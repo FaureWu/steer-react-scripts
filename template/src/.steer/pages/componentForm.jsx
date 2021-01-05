@@ -2,6 +2,6 @@ import { lazy } from 'react'
 
 export default lazy(() => {
   return import(
-    /* webpackChunkName: "page~componentForm" */ '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/pages/component/form.jsx'
+    /* webpackChunkName: "page~componentForm" */ '@/pages/component/form.jsx'
   )
 })

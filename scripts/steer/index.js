@@ -9,6 +9,7 @@ const {
   removeFile,
   readScripts,
   isFileInPath,
+  getWebpackAliasPath,
 } = require('./tools')
 const { compose } = require('./functor')
 const {
@@ -28,8 +29,14 @@ function run() {
 
   const pages = readPageConfigs()
   const layouts = readLayoutConfigs()
-  const models = readScripts(paths.globalModelsPath)
-  const plugins = readScripts(paths.globalPluginsPath)
+  const models = readScripts(paths.globalModelsPath).map(modelFile => ({
+    path: modelFile,
+    aliasPath: getWebpackAliasPath(modelFile),
+  }))
+  const plugins = readScripts(paths.globalPluginsPath).map(pluginFile => ({
+    path: pluginFile,
+    aliasPath: getWebpackAliasPath(pluginFile),
+  }))
 
   runtime.setData({ pages, layouts, models, plugins })
 

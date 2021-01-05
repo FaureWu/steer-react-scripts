@@ -1,7 +1,7 @@
 import React from 'react'
 
-import LHorizontal from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/layouts/horizontal.jsx'
-import LVertical from '/Volumes/Code/workspace/steer/steer-react-scripts/template/src/.steer/layouts/vertical.jsx'
+import LHorizontal from '@/.steer/layouts/horizontal.jsx'
+import LVertical from '@/.steer/layouts/vertical.jsx'
 
 const LayoutComponents = {
   horizontal: LHorizontal,
