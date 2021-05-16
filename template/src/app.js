@@ -1,4 +1,3 @@
-import qs from 'qs'
 import { message } from 'antd'
 import { delay } from '@/utils/tool'
 import { dispatcher } from '@opcjs/zoro'
@@ -11,13 +10,7 @@ import { updateBreadCrumbs } from '@/layouts/breadCrumbs/breadCrumbs'
  * 控制页面的渲染逻辑
  */
 export function render(oldRender) {
-  const [, hashQuery = ''] = window.location.hash.split('?')
-  const query = window.location.search.replace('?', '')
-
-  let token = qs.parse(query).token
-  if (!token) {
-    token = qs.parse(hashQuery).token
-  }
+  let token = history.get('token')
 
   if (token) {
     loading.show()
@@ -47,6 +40,12 @@ export function onRouteChange({ location }) {
   const whiteLists = ['/login', '/404']
 
   if (whiteLists.indexOf(pathname) !== -1) return
+
+  const token = getToken()
+  if (!token) {
+    redirectToLogin()
+    return
+  }
 
   const authCodes = getAuthCodes()
   if (process.env.REACT_APP_ENV !== 'mock' && !authCodes[pathname]) {

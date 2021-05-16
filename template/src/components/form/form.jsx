@@ -5,7 +5,7 @@ import React, {
   forwardRef,
 } from 'react'
 import { Form as AntForm, Button, Skeleton, Spin } from 'antd'
-import { noop, isArray } from '@/utils/tool'
+import { noop, isArray, createUniqueId } from '@/utils/tool'
 import { useOnce } from '@/utils/hook'
 
 import Group from './group'
@@ -15,6 +15,7 @@ function Form(
   {
     labelSpan = 6,
     wrapperSpan = 14,
+    preserve = true,
     showSubmitButton = true,
     onFieldChange = noop,
     skeletonRows = 5,
@@ -28,6 +29,10 @@ function Form(
 ) {
   const [form] = AntForm.useForm()
   const [skeleton] = useOnce(loading)
+
+  const name = useMemo(() => {
+    return createUniqueId()
+  }, [])
 
   const handleFieldChange = useCallback(
     (fields) => {
@@ -56,6 +61,8 @@ function Form(
             wrapperCol={{ span: wrapperSpan }}
             layout={layout === 'inline' ? undefined : layout}
             form={form}
+            name={name}
+            preserve={preserve}
             onFieldsChange={handleFieldChange}
             onFinish={onSubmit}
           >
@@ -80,7 +87,9 @@ function Form(
     labelSpan,
     layout,
     loading,
+    name,
     onSubmit,
+    preserve,
     props,
     showSubmitButton,
     skeleton,

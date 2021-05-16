@@ -1,6 +1,6 @@
 import qs from 'qs'
 import { dispatcher } from '@opcjs/zoro'
-import { isArray, isString, isNumber, isObject } from '@/utils/tool'
+import { isArray, isString, isNumber, isObject, isEmpty } from '@/utils/tool'
 import { getToken } from '@/services/user'
 
 function resolveParams(route, data) {
@@ -48,7 +48,8 @@ function checkHttpStatus(response, { quite }) {
     error.message = `无权访问${response.url.replace(
       (/^http/.test(response.url)
         ? window.location.origin
-        : process.env.REACT_APP_SERVER) + process.env.REACT_APP_API_PREFIX,
+        : process.env.REACT_APP_SERVER || '') +
+        (process.env.REACT_APP_API_PREFIX || ''),
       '',
     )}`
   }
@@ -62,7 +63,8 @@ function checkHttpStatus(response, { quite }) {
 }
 
 function checkSuccess(response) {
-  if (isObject(response) && response.code === 200) {
+  const code = `${response.code}`.toUpperCase()
+  if (isObject(response) && (code === '200' || code === 'SUCCESS')) {
     return response
   }
 
@@ -81,7 +83,7 @@ function throwError(e) {
 function joinParams(url, params) {
   const hasQueryParams = url.indexOf('?') !== -1
 
-  if (!isObject(params)) return url
+  if (isEmpty(params)) return url
 
   if (hasQueryParams) return `${url}&${qs.stringify(params)}`
   else return `${url}?${qs.stringify(params)}`
@@ -97,13 +99,13 @@ export default function request(route, options) {
     ...newOptions
   } = options
 
-  newOptions.credentials = 'include'
+  newOptions.credentials = 'omit'
   newOptions.headers = headers
   newOptions.method = method.toLocaleUpperCase()
   newOptions.headers['Content-Type'] = 'application/json'
 
   const token = getToken()
-  if (token) newOptions.headers.Authorization = token
+  if (token) newOptions.headers.Authorization = `Bearer ${token}`
 
   let { url, body } = resolveParams(route, data)
 
@@ -122,7 +124,10 @@ export default function request(route, options) {
   } else newOptions.body = JSON.stringify(body)
 
   if (!/^http/.test(url)) {
-    url = process.env.REACT_APP_SERVER + process.env.REACT_APP_API_PREFIX + url
+    url =
+      (process.env.REACT_APP_SERVER || '') +
+      (process.env.REACT_APP_API_PREFIX || '') +
+      url
   }
 
   return fetch(url, newOptions)

@@ -202,8 +202,8 @@ module.exports = function (
   }
   appPackage['lint-staged'] = {
     'src/**/*.{js,jsx,json,css,less,scss,md}': [
-      'prettier --config ./prettierrc --write',
-      'git add',
+      'prettier --config .prettierrc --write',
+      'git add .',
     ],
   }
 

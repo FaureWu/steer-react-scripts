@@ -55,7 +55,7 @@ export default function () {
   <% if (hasOperator) { -%>
   const handleRow = useCallback((record) => {
     return {
-      onClick: () => dispatcher.<%= operatorModelNamespace %>.setActiveRow(record)
+      onClick: () => dispatcher.<%= operatorModelNamespace %>.update({ activeRow: record })
     }
   }, [])
   <% } -%>

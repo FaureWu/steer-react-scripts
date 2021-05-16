@@ -2,7 +2,6 @@ import React, { useMemo, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Tag } from 'antd'
 import { history } from 'steer'
-import qs from 'qs'
 import { dispatcher } from '@opcjs/zoro'
 import { setBreadCrumbs, getBreadCrumbs } from '@/services/user'
 import { routes } from '@/config/menu'
@@ -83,11 +82,10 @@ export function updateBreadCrumbs({ pathname, search }) {
   const currentBreadCrumbIndex = breadCrumbs.findIndex(
     (item) => item.pathname === pathname,
   )
-  const query = qs.parse(search.replace('?', ''))
   const currentRoute = routes.find((item) => item.route === pathname)
   const route = {
     title: decodeURIComponent(
-      query.name || (currentRoute && currentRoute.title) || '无标题',
+      history.get('name') || (currentRoute && currentRoute.title) || '无标题',
     ),
     route: `${pathname}${decodeURIComponent(search)}`,
     pathname,

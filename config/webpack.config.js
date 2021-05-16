@@ -64,6 +64,7 @@ const useTypeScript = fs.existsSync(paths.appTsConfig)
 const cssRegex = /\.css$/
 const sassRegex = /\.(scss|sass)$/
 const lessRegex = /\.less$/
+const mobileLessRegex = /\-mobile\.less$/
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -83,7 +84,7 @@ module.exports = function (webpackEnv) {
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1))
 
   // common function to get style loaders
-  const getStyleLoaders = (cssOptions, preProcessor, ...otherLoaders) => {
+  const getStyleLoaders = (options = {}, preProcessor, ...otherLoaders) => {
     const loaders = [
       isEnvDevelopment && require.resolve('style-loader'),
       isEnvProduction && {
@@ -96,7 +97,7 @@ module.exports = function (webpackEnv) {
       },
       {
         loader: require.resolve('css-loader'),
-        options: cssOptions,
+        options: options.cssOptions || {},
       },
       {
         // Options for PostCSS as we reference these options twice
@@ -119,7 +120,7 @@ module.exports = function (webpackEnv) {
             // so that it honors browserslist config in package.json
             // which in turn let's users customize the target behavior as per their needs.
             postcssNormalize(),
-          ],
+          ].concat(options.postcssPlugins || []),
           sourceMap: isEnvProduction && shouldUseSourceMap,
         },
       },
@@ -444,6 +445,15 @@ module.exports = function (webpackEnv) {
                     },
                     'antd',
                   ],
+                  [
+                    require.resolve('babel-plugin-import'),
+                    {
+                      libraryName: 'antd-mobile',
+                      libraryDirectory: 'es',
+                      style: true,
+                    },
+                    'antd-mobile',
+                  ],
                 ],
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -503,11 +513,13 @@ module.exports = function (webpackEnv) {
             {
               test: cssRegex,
               use: getStyleLoaders({
-                importLoaders: 1,
-                sourceMap: isEnvProduction && shouldUseSourceMap,
-                modules: {
-                  getLocalIdent: getCSSModuleLocalIdent,
-                },
+                cssOptions: {
+                  importLoaders: 1,
+                  sourceMap: isEnvProduction && shouldUseSourceMap,
+                  modules: {
+                    getLocalIdent: getCSSModuleLocalIdent,
+                  },
+                }
               }),
               // Don't consider CSS imports dead code even if the
               // containing package claims to have no side effects.
@@ -523,14 +535,21 @@ module.exports = function (webpackEnv) {
               exclude: [paths.appNodeModules, paths.appLess],
               use: getStyleLoaders(
                 {
-                  importLoaders: 3,
-                  sourceMap: isEnvProduction && shouldUseSourceMap,
-                  modules: {
-                    getLocalIdent: getCSSModuleLocalIdent,
+                  cssOptions: {
+                    importLoaders: 3,
+                    sourceMap: isEnvProduction && shouldUseSourceMap,
+                    modules: {
+                      getLocalIdent: getCSSModuleLocalIdent,
+                    },
                   },
                 },
                 {
                   loader: require.resolve('less-loader'),
+                  options: {
+                    lessOptions: {
+                      javascriptEnabled: true,
+                    },
+                  },
                 },
                 {
                   loader: require.resolve('style-resources-loader'),
@@ -553,8 +572,10 @@ module.exports = function (webpackEnv) {
               include: [paths.appNodeModules, paths.appLess],
               use: getStyleLoaders(
                 {
-                  importLoaders: 3,
-                  sourceMap: isEnvProduction && shouldUseSourceMap,
+                  cssOptions: {
+                    importLoaders: 3,
+                    sourceMap: isEnvProduction && shouldUseSourceMap,
+                  }
                 },
                 {
                   loader: 'less-loader',
@@ -584,11 +605,13 @@ module.exports = function (webpackEnv) {
               test: sassRegex,
               use: getStyleLoaders(
                 {
-                  importLoaders: 3,
-                  sourceMap: isEnvProduction && shouldUseSourceMap,
-                  modules: {
-                    getLocalIdent: getCSSModuleLocalIdent,
-                  },
+                  cssOptions: {
+                    importLoaders: 3,
+                    sourceMap: isEnvProduction && shouldUseSourceMap,
+                    modules: {
+                      getLocalIdent: getCSSModuleLocalIdent,
+                    },
+                  }
                 },
                 {
                   loader: 'sass-loader',
@@ -649,6 +672,31 @@ module.exports = function (webpackEnv) {
             : undefined,
         ),
       ),
+      new HtmlWebpackPlugin(
+        Object.assign(
+          {},
+          {
+            inject: true,
+            template: paths.appMobileHtml,
+          },
+          isEnvProduction
+            ? {
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true,
+                },
+              }
+            : undefined,
+        ),
+      ),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -688,6 +736,7 @@ module.exports = function (webpackEnv) {
           // both options are optional
           filename: 'static/css/[name].[contenthash:8].css',
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+          ignoreOrder: true,
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding

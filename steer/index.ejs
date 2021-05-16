@@ -19,17 +19,48 @@ function useModel(selector) {
   return useSelector(selector, shallowEqual)
 }
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search)
-}
-
 history.switch = function (layout, route) {
   const { origin } = window.location
   const layoutPath = layout ? `/${layout}` : ''
   window.location.href = `${origin}${layoutPath}#${route}`
 }
 
-export { app, store, history, useModel, useQuery }
+history.get = function (name) {
+  const [, hashQuery = ''] = window.location.hash.split('?')
+  const url = new URLSearchParams(hashQuery)
+
+  if (name) return url.get(name)
+}
+
+history.set = function (name, value) {
+  const [hash, hashQuery = ''] = window.location.hash.split('?')
+  const url = new URLSearchParams(hashQuery)
+  url.set(name, value)
+
+  window.history.replaceState(
+    null,
+    null,
+    `${window.location.origin}${
+      window.location.pathname
+    }${hash}?${url.toString()}`,
+  )
+}
+
+history.delete = function (name) {
+  const [hash, hashQuery = ''] = window.location.hash.split('?')
+  const url = new URLSearchParams(hashQuery)
+  url.delete(name)
+
+  window.history.replaceState(
+    null,
+    null,
+    `${window.location.origin}${
+      window.location.pathname
+    }${hash}?${url.toString()}`,
+  )
+}
+
+export { app, store, history, useModel }
 
 render(() => {
   ReactDOM.render(

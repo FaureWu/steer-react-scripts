@@ -1,12 +1,13 @@
 import React, {
   useMemo,
+  useState,
   useCallback,
   useImperativeHandle,
   forwardRef,
 } from 'react'
 import { Form, Button, Space } from 'antd'
 import classNames from 'classnames'
-import { noop, isArray } from '@/utils/tool'
+import { noop, isArray, isEmpty } from '@/utils/tool'
 
 import Item from './item'
 
@@ -26,23 +27,31 @@ function Filter(
   ref,
 ) {
   const [form] = Form.useForm()
+  const [loaded, setLoaded] = useState(false)
+  const [readyMap, setReadyMap] = useState({})
 
-  const triggersMap = useMemo(() => {
-    const result = {}
+  const { triggerMap, waitMap } = useMemo(() => {
+    const triggerMap = {}
+    const waitMap = {}
     React.Children.forEach(children, (child) => {
-      if (
-        child.type !== Item ||
-        !child.props ||
-        !child.props.trigger ||
-        !child.props.name
-      )
-        return
+      if (child.type !== Item || !child.props || !child.props.name) return
 
-      result[child.props.name] = true
+      if (child.props.trigger) triggerMap[child.props.name] = true
+      if (child.props.wait) waitMap[child.props.name] = true
     })
 
-    return result
+    return { triggerMap, waitMap }
   }, [children])
+
+  const setAndCheckReady = useCallback(
+    (name) => {
+      const newReadyMap = { ...readyMap, [name]: true }
+      setReadyMap(newReadyMap)
+
+      return Object.keys(waitMap).every((key) => newReadyMap[key])
+    },
+    [readyMap, waitMap],
+  )
 
   const handleSearch = useCallback(() => {
     form.submit()
@@ -61,9 +70,18 @@ function Filter(
       const field = fields[0]
       const name = field.name[0]
       onFieldChange(name, field.value)
-      if (triggersMap[name]) form.submit()
+
+      if (isEmpty(waitMap) || loaded) {
+        if (triggerMap[name]) form.submit()
+        return
+      }
+
+      if (!setAndCheckReady(name)) return
+
+      setLoaded(true)
+      form.submit()
     },
-    [form, onFieldChange, triggersMap],
+    [onFieldChange, waitMap, loaded, setAndCheckReady, form, triggerMap],
   )
 
   useImperativeHandle(ref, () => ({

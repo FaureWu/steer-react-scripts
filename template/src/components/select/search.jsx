@@ -1,4 +1,10 @@
-import React, { useMemo, useCallback, useState, useRef } from 'react'
+import React, {
+  useMemo,
+  useCallback,
+  useState,
+  useRef,
+  forwardRef,
+} from 'react'
 import classNames from 'classnames'
 import { Select } from 'antd'
 import { isFunction, noop } from '@/utils/tool'
@@ -35,7 +41,6 @@ function Search(
         .then((opts) => {
           if (count !== loadCount.current) return
           setData(opts)
-          console.log('set', count, loadCount.current)
           setLoading(false)
         })
         .catch(() => setLoading(false))
@@ -46,11 +51,11 @@ function Search(
   )
 
   const handleChange = useCallback(
-    (...rest) => {
+    (value, option) => {
+      onChange(value, option, data)
       setData([])
-      onChange(...rest)
     },
-    [onChange],
+    [data, onChange],
   )
 
   const handleBlur = useCallback(
@@ -68,10 +73,10 @@ function Search(
         className={classNames(className, styles.select)}
         dropdownMatchSelectWidth={dropdownMatchSelectWidth}
         filterOption={false}
-        labelInValue
         notFoundContent={false}
         loading={loading}
         showSearch
+        labelInValue
         defaultActiveFirstOption={false}
         showArrow={loading}
         options={data}
@@ -92,4 +97,4 @@ function Search(
   ])
 }
 
-export default Search
+export default forwardRef(Search)

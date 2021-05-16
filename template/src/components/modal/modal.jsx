@@ -13,7 +13,7 @@ import styles from './modal.less'
 function Modal(
   {
     destroyOnClose = true,
-    forceRender = true,
+    forceRender = false,
     centered = true,
     closable,
     visible,
@@ -40,6 +40,7 @@ function Modal(
   useEffect(() => {
     setShow(visible)
   }, [visible])
+
   useImperativeHandle(ref, () => ({
     show: () => setShow(true),
     hide: () => setShow(false),

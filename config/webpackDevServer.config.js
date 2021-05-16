@@ -115,7 +115,7 @@ module.exports = function (proxy, allowedHost) {
     proxy,
     before(app, server) {
       // add the mock server
-      mocker(app, { prefix: apiPrefix })
+      if (process.env.REACT_APP_ENV === 'mock') mocker(app, { prefix: apiPrefix })
 
       // Keep `evalSourceMapMiddleware` and `errorOverlayMiddleware`
       // middlewares before `redirectServedPath` otherwise will not have any effect

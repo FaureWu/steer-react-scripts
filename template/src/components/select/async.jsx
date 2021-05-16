@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import classNames from 'classnames'
 import { useDidMount } from 'beautiful-react-hooks'
-import { isFunction } from '@/utils/tool'
+import { isFunction, noop } from '@/utils/tool'
 import { Select } from 'antd'
 
 import styles from './select.less'
@@ -19,6 +19,9 @@ function Async(
     options,
     children,
     value,
+    defaultSelectFirst,
+    labelInValue,
+    onChange = noop,
     ...props
   },
   ref,
@@ -26,25 +29,50 @@ function Async(
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const load = useCallback(() => {
-    if (!isFunction(options)) return
+  const load = useCallback(
+    (init) => {
+      if (!isFunction(options)) return
 
-    setLoading(true)
-    options()
-      .then((opts) => setData(opts))
-      .finally(() => setLoading(false))
-  }, [options])
+      setLoading(true)
+      options()
+        .then((opts) => {
+          setData(opts)
+
+          if (init && defaultSelectFirst && opts.length) {
+            const selectOption = opts[0]
+            if (labelInValue) {
+              const { value, label } = selectOption
+              onChange({ value, label, key: value }, selectOption, opts)
+            } else onChange(selectOption.value, selectOption, opts)
+          }
+        })
+        .finally(() => setLoading(false))
+    },
+    [defaultSelectFirst, labelInValue, onChange, options],
+  )
+
+  const getData = useCallback(() => {
+    return data
+  }, [data])
 
   const handleFilter = useCallback((input = '', { label = '' }) => {
     return label.toLowerCase().indexOf(input.toLowerCase()) >= 0
   }, [])
 
+  const handleChange = useCallback(
+    (value, option) => {
+      onChange(value, option, data)
+    },
+    [onChange, data],
+  )
+
   useDidMount(() => {
-    load()
+    load(true)
   })
 
   useImperativeHandle(ref, () => ({
     load,
+    getData,
   }))
 
   return useMemo(() => {
@@ -55,6 +83,8 @@ function Async(
         value={loading ? undefined : value}
         options={data}
         loading={loading}
+        labelInValue={labelInValue}
+        onChange={handleChange}
         dropdownMatchSelectWidth={dropdownMatchSelectWidth}
         filterOption={handleFilter}
       />
@@ -63,7 +93,9 @@ function Async(
     className,
     data,
     dropdownMatchSelectWidth,
+    handleChange,
     handleFilter,
+    labelInValue,
     loading,
     props,
     value,
