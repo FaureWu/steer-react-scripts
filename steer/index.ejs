@@ -3,17 +3,11 @@ import ReactDOM from 'react-dom'
 import { ConfigProvider } from 'antd'
 import qs from 'qs'
 import locale from 'antd/es/locale/<%= process.env.REACT_APP_LOCALE %>'
-import * as serviceWorker from '@/serviceWorker'
 import { render } from '@/app'
 import { useSelector, shallowEqual } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import './dayjs'
 import App, { app, store, history } from './app'
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.register()
 
 function useModel(selector) {
   return useSelector(selector, shallowEqual)
@@ -62,7 +56,15 @@ history.delete = function (name) {
 
 export { app, store, history, useModel }
 
-render(() => {
+render((wrapper) => {
+  if (typeof wrapper === 'function') {
+    ReactDOM.render(
+      wrapper(<App />),
+      document.getElementById(process.env.REACT_APP_ROOT_ELEMENT_ID),
+    )
+    return
+  }
+
   ReactDOM.render(
     <ConfigProvider locale={locale}>
       <App />

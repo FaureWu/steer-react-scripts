@@ -108,19 +108,20 @@ module.exports = function (webpackEnv) {
           // Necessary for external CSS imports to work
           // https://github.com/facebook/create-react-app/issues/2677
           ident: 'postcss',
-          plugins: () => [
-            require('postcss-flexbugs-fixes'),
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009',
-              },
-              stage: 3,
-            }),
-            // Adds PostCSS Normalize as the reset css with default options,
-            // so that it honors browserslist config in package.json
-            // which in turn let's users customize the target behavior as per their needs.
-            postcssNormalize(),
-          ].concat(options.postcssPlugins || []),
+          plugins: () =>
+            [
+              require('postcss-flexbugs-fixes'),
+              require('postcss-preset-env')({
+                autoprefixer: {
+                  flexbox: 'no-2009',
+                },
+                stage: 3,
+              }),
+              // Adds PostCSS Normalize as the reset css with default options,
+              // so that it honors browserslist config in package.json
+              // which in turn let's users customize the target behavior as per their needs.
+              postcssNormalize(),
+            ].concat(options.postcssPlugins || []),
           sourceMap: isEnvProduction && shouldUseSourceMap,
         },
       },
@@ -519,7 +520,7 @@ module.exports = function (webpackEnv) {
                   modules: {
                     getLocalIdent: getCSSModuleLocalIdent,
                   },
-                }
+                },
               }),
               // Don't consider CSS imports dead code even if the
               // containing package claims to have no side effects.
@@ -575,7 +576,7 @@ module.exports = function (webpackEnv) {
                   cssOptions: {
                     importLoaders: 3,
                     sourceMap: isEnvProduction && shouldUseSourceMap,
-                  }
+                  },
                 },
                 {
                   loader: 'less-loader',
@@ -611,7 +612,7 @@ module.exports = function (webpackEnv) {
                     modules: {
                       getLocalIdent: getCSSModuleLocalIdent,
                     },
-                  }
+                  },
                 },
                 {
                   loader: 'sass-loader',
@@ -646,13 +647,13 @@ module.exports = function (webpackEnv) {
       ],
     },
     plugins: [
-      // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
           {},
           {
             inject: true,
-            template: paths.appHtml,
+            template: paths.appMobileHtml,
+            filename: 'mobile.html',
           },
           isEnvProduction
             ? {
@@ -672,12 +673,13 @@ module.exports = function (webpackEnv) {
             : undefined,
         ),
       ),
+      // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
           {},
           {
             inject: true,
-            template: paths.appMobileHtml,
+            template: paths.appHtml,
           },
           isEnvProduction
             ? {

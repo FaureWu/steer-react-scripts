@@ -60,7 +60,7 @@ const openLayout = process.env.REACT_APP_OPEN_LAYOUT
 const openPage = process.env.REACT_APP_OPEN_PAGE ? `#${process.env.REACT_APP_OPEN_PAGE}` : ''
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!checkRequiredFiles([paths.appHtml, paths.appMobileHtml, paths.appIndexJs])) {
   process.exit(1)
 }
 
